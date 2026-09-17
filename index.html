@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>蜂箱環境資料分析台</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div><p class="eyebrow">HIVE RESEARCH TOOLKIT</p><h1>蜂箱環境資料分析台</h1></div>
+      <div class="privacy"><span>●</span> 資料僅在此瀏覽器處理</div>
+    </header>
+    <main>
+      <section class="hero">
+        <div><p class="eyebrow">SCD30 × AUTOMATIC WEATHER STATION</p><h2>從原始紀錄，到可比較的研究圖表。</h2><p>匯入高頻 SCD30 與外部自動氣象站資料，依研究時間尺度彙整、檢查資料品質並輸出圖表。</p></div>
+        <div class="hero-note"><strong>建議工作流程</strong><ol><li>上傳兩份資料</li><li>確認時間與欄位</li><li>設定期間與彙整</li><li>檢視並匯出</li></ol></div>
+      </section>
+
+      <section class="card upload-grid" aria-label="資料匯入">
+        <div class="upload-panel"><div class="source-icon hive">⌂</div><div><h3>蜂箱 SCD30 資料</h3><p>Excel 或 CSV；支援每 30 秒一筆的高頻紀錄。</p></div><label class="file-button">選擇檔案<input id="hiveFile" type="file" accept=".xlsx,.xls,.csv" /></label><p id="hiveStatus" class="file-status">尚未選擇檔案</p></div>
+        <div class="upload-panel"><div class="source-icon station">⌁</div><div><h3>外部氣象站資料</h3><p>Excel 或 CSV；可與蜂箱資料在同一時間軸比較。</p></div><label class="file-button">選擇檔案<input id="weatherFile" type="file" accept=".xlsx,.xls,.csv" /></label><p id="weatherStatus" class="file-status">尚未選擇檔案</p></div>
+      </section>
+
+      <section id="mappingCard" class="card hidden"><div class="section-heading"><div><p class="eyebrow">STEP 1 · 欄位確認</p><h2>資料欄位</h2></div><p>系統已嘗試配對；請在繪圖前確認日期時間欄位。</p></div><div id="mappingGrid" class="mapping-grid"></div></section>
+
+      <section id="controlsCard" class="card hidden"><div class="section-heading"><div><p class="eyebrow">STEP 2 · 分析設定</p><h2>繪圖範圍與尺度</h2></div><button id="renderButton" class="primary">更新圖表</button></div>
+        <div class="controls-grid">
+          <label>開始時間<input id="startDate" type="datetime-local" /></label><label>結束時間<input id="endDate" type="datetime-local" /></label>
+          <label>時間彙整<select id="aggregation"><option value="raw">原始資料（不彙整）</option><option value="5min">每 5 分鐘平均</option><option value="15min">每 15 分鐘平均</option><option value="hour" selected>每小時平均</option><option value="day">每日平均</option></select></label>
+          <label>遺漏值處理<select id="missing"><option value="gap">保留空缺（建議）</option><option value="connect">連接相鄰點</option></select></label>
+          <label>左側座標軸標題<input id="leftAxisTitle" value="溫度 (°C)／濕度 (%)／其他" /></label><label>右側座標軸標題<input id="rightAxisTitle" value="CO₂ (ppm)" /></label>
+        </div>
+        <div class="callout"><strong>研究建議：</strong>30 秒資料適合先以 5–15 分鐘或每小時平均呈現；原始資料可用於檢查短暫異常，但不宜直接作為長期趨勢圖。</div>
+      </section>
+
+      <section id="chartCard" class="hidden"><div class="section-heading chart-heading"><div><p class="eyebrow">STEP 3 · 視覺化</p><h2>時間序列圖</h2></div><div class="actions"><button id="downloadPng">下載 PNG</button><button id="downloadCsv">下載彙整資料 CSV</button></div></div>
+        <div id="metricControls" class="metric-controls"></div>
+        <div class="chart-card"><canvas id="chart"></canvas></div>
+        <div id="qualitySummary" class="quality-grid"></div>
+        <details class="method"><summary>方法與可重現性說明</summary><p>彙整值使用各時間桶內的算術平均。非數值、空白和無法解析的時間將排除；系統不會自行插補遺失觀測值。下載的 CSV 是目前篩選、欄位與彙整設定的結果，適合留存於研究紀錄。</p></details>
+      </section>
+    </main>
+    <footer>蜂箱環境資料分析台 · 靜態網頁工具 · 建議在論文或報告中記錄彙整尺度與資料排除規則</footer>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
