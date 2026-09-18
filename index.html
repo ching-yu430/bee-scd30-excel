@@ -35,7 +35,7 @@
           <label>開始時間<input id="startDate" type="datetime-local" /></label><label>結束時間<input id="endDate" type="datetime-local" /></label>
           <label>時間彙整<select id="aggregation"><option value="raw">原始資料（不彙整）</option><option value="5min">每 5 分鐘平均</option><option value="15min">每 15 分鐘平均</option><option value="hour" selected>每小時平均</option><option value="day">每日平均</option></select></label>
           <label>遺漏值處理<select id="missing"><option value="gap">保留空缺（建議）</option><option value="connect">連接相鄰點</option></select></label>
-          <label>圖表模式<select id="chartMode"><option value="continuous">連續資料（各指標分圖）</option><option value="daily">單日圖表（每一天一張）</option><option value="combined">合併三項資料（同張圖）</option></select></label>
+          <label>圖表模式<select id="chartMode"><option value="continuous">連續資料（各指標分圖）</option><option value="daily">單日圖表（每一天一張）</option><option value="combined">合併三項資料（同張圖）</option><option value="co2hour">CO₂ 24 小時平均圖</option></select></label>
         </div>
         <div class="range-shortcuts"><span id="dataRange">資料期間：尚未讀取</span><button data-range="all">全部資料</button><button data-range="7">最後 7 天</button><button data-range="30">最後 30 天</button></div>
         <div class="filters"><strong>數值篩選（留白即不限制）</strong><label>溫度最小<input id="tempMin" type="number" step="any" placeholder="例如 20" /></label><label>溫度最大<input id="tempMax" type="number" step="any" placeholder="例如 40" /></label><label>濕度最小<input id="humidityMin" type="number" step="any" /></label><label>濕度最大<input id="humidityMax" type="number" step="any" /></label><label>CO₂ 最小<input id="co2Min" type="number" step="any" placeholder="例如 2500" /></label><label>CO₂ 最大<input id="co2Max" type="number" step="any" /></label></div>
