@@ -1,0 +1,19 @@
+/* v8.1: uniform control heights and responsive layout; calculations unchanged. */
+button,.file-button{min-height:44px;line-height:1.45;display:inline-flex;align-items:center;justify-content:center;text-align:center;max-width:100%;white-space:normal}
+button:focus-visible,.file-button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #c58b35;outline-offset:3px}
+input:not([type=checkbox]):not([type=color]):not([type=file]),select{min-height:44px;min-width:0;max-width:100%}
+.editor-body{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:end;margin-top:18px}
+.editor-body>label{width:auto;margin:0;min-width:0}.editor-body>.metric-controls,.editor-body>.axis-settings{grid-column:1/-1;min-width:0;margin:0}
+.editor-body>button,.editor-body>.file-button{margin:0;align-self:end;justify-self:stretch;min-height:44px;font-size:13px;padding:10px 14px}
+.export-settings{grid-template-columns:minmax(160px,1fr) repeat(3,minmax(130px,1fr))}
+.editor-body .file-button{grid-column:auto;width:auto}
+label.check-tile{display:flex;flex-direction:row;align-items:center;gap:12px;min-height:48px;padding:10px 14px;margin:0;border:1px solid #becfc5;border-radius:8px;background:#fffefa;cursor:pointer;width:auto}
+label.check-tile:has(input:checked){background:#e6f1e9;border-color:#2e655b;color:#204f45}
+label.check-tile input[type=checkbox]{appearance:auto;flex:0 0 24px;width:24px;height:24px;min-width:24px;margin:0;padding:0;accent-color:#2e655b;cursor:pointer}
+.quick-labels{gap:12px}.quick-labels>button{min-height:48px}.editor-body>.check-tile{align-self:end}
+.mapping-grid{align-items:start}.mapping-group{min-width:0;padding:20px;border:1px solid #dce4db;background:#fafbf7}.mapping-title{min-height:44px;border-bottom:1px solid #dce4db;padding-bottom:12px;align-items:center}.mapping-title h3{font-size:16px;line-height:1.5}.mapping-block{margin-top:18px}.mapping-block h4{margin:0 0 8px;font-size:14px;color:#2e655b}.mapping-help{font-size:12px;color:#60766c;line-height:1.8;min-height:44px;margin-bottom:10px}.mapping-time-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.mapping-time-fields>label:last-child{grid-column:1/-1}.mapping-value-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.mapping-group .mapping-block label{margin:0;min-width:0;line-height:1.6}.mapping-group select{width:100%;text-overflow:ellipsis}.mapping-group .slide-switch{flex:0 0 56px;width:56px;height:44px}.slide-switch .slider{top:7px;bottom:7px}.slider:before{width:24px;height:24px;top:3px}.slide-switch input:checked+.slider:before{transform:translateX(26px)}
+.mapping-title{min-height:60px}
+#timePreview{margin-top:16px;padding:12px 16px;border:1px solid #dce4db;background:#f0f5ee;border-radius:8px}#timePreview p{margin:0 0 8px}#timePreview p:last-child{margin:0}
+.point-fields>*{min-width:0}.actions{flex-wrap:wrap}.axis-group{min-width:0}.bounds{flex-wrap:wrap}.bounds label{flex:1 1 70px}.metric{min-width:0;flex-wrap:wrap}.metric input[type=text]{max-width:100%;flex:1;min-width:100px}
+@media(max-width:1000px){.export-settings{grid-template-columns:repeat(2,minmax(0,1fr))}.mapping-value-fields{grid-template-columns:1fr}.editor-body{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){main{padding:20px 14px 40px}.card,.chart-editor{padding:18px}.editor-body,.export-settings,.mapping-time-fields,.controls-grid{grid-template-columns:1fr}.editor-body>.file-button{width:100%}.mapping-time-fields>label:last-child{grid-column:auto}.quick-labels>*{width:100%}.mapping-group{padding:16px}.point-fields>button{width:100%}.editor-heading span{line-height:1.6}}
