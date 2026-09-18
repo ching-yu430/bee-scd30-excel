@@ -35,11 +35,37 @@
           <label>開始時間<input id="startDate" type="datetime-local" /></label><label>結束時間<input id="endDate" type="datetime-local" /></label>
           <label>時間彙整<select id="aggregation"><option value="raw">原始資料（不彙整）</option><option value="5min">每 5 分鐘平均</option><option value="15min">每 15 分鐘平均</option><option value="hour" selected>每小時平均</option><option value="day">每日平均</option></select></label>
           <label>遺漏值處理<select id="missing"><option value="gap">保留空缺（建議）</option><option value="connect">連接相鄰點</option></select></label>
-          <label>圖表模式<select id="chartMode"><option value="continuous">連續資料（各指標分圖）</option><option value="daily">單日圖表（每一天一張）</option><option value="combined">合併三項資料（同張圖）</option><option value="co2hour">CO₂ 24 小時平均圖</option></select></label>
+          <label>圖表模式<select id="chartMode"><option value="continuous">連續資料（各指標分圖）</option><option value="daily">單日圖表（每一天一張）</option><option value="combined">合併三項資料（同張圖）</option><option value="co2hour">CO₂ 24 小時平均圖</option><option value="overlay">每日疊圖（00–24 時比較）</option><option value="difference">內外差值（內部 − 外部）</option></select></label>
         </div>
         <div class="range-shortcuts"><span id="dataRange">資料期間：尚未讀取</span><button data-range="all">全部資料</button><button data-range="7">最後 7 天</button><button data-range="30">最後 30 天</button></div>
-        <div class="filters"><strong>數值篩選（留白即不限制）</strong><label>溫度最小<input id="tempMin" type="number" step="any" placeholder="例如 20" /></label><label>溫度最大<input id="tempMax" type="number" step="any" placeholder="例如 40" /></label><label>濕度最小<input id="humidityMin" type="number" step="any" /></label><label>濕度最大<input id="humidityMax" type="number" step="any" /></label><label>CO₂ 最小<input id="co2Min" type="number" step="any" placeholder="例如 2500" /></label><label>CO₂ 最大<input id="co2Max" type="number" step="any" /></label></div>
-        <button id="resetFilters" type="button">清除全部數值篩選</button>
+        <label class="overlay-setting">每日疊圖指標（內部資料）<select id="overlayMetric"><option value="co2">CO₂</option><option value="temp">溫度</option><option value="humidity">相對濕度</option></select></label>
+        <section class="filter-panel" aria-label="數值篩選">
+          <div class="panel-heading"><h3>數值篩選</h3><button id="resetFilters" class="secondary" type="button">清除全部條件</button></div>
+          <div class="inline-options"><label>套用對象<select id="filterSource"><option value="both">內部與外部</option><option value="hive">只篩選內部</option><option value="weather">只篩選外部</option></select></label><label>篩選時機<select id="filterStage"><option value="raw">原始數值 → 篩選 → 平均</option><option value="aggregate">原始數值 → 平均 → 篩選</option></select></label><button id="co2Preset" class="secondary" type="button">範例：只保留內部 CO₂ &gt; 2500</button></div>
+          <div id="filterRows" class="filter-rows"></div>
+          <p id="filterSummary" class="help-text" aria-live="polite">尚未設定條件。每個指標獨立篩選；不會因 CO₂ 超標而移除同時刻的溫濕度。</p>
+        </section>
+        <details class="format-panel"><summary>圖表格式與匯出設定</summary>
+          <div class="format-grid">
+            <label>圖表主標題（留白自動）<input id="chartTitle" maxlength="100" placeholder="第二次實驗蜂箱環境" /></label>
+            <label>副標題<input id="chartSubtitle" maxlength="160" placeholder="觀測條件、備註" /></label>
+            <label>橫軸標題（留白自動）<input id="xAxisTitle" maxlength="60" /></label>
+            <label>字體大小<input id="fontSize" type="number" min="10" max="24" value="12" /></label>
+            <label>線寬<input id="lineWidth" type="number" min="1" max="6" value="2" step="0.5" /></label>
+            <label>標記點形狀<select id="pointStyle"><option value="circle">圓形</option><option value="rect">方形</option><option value="triangle">三角形</option></select></label>
+            <label>標記點大小<input id="pointSize" type="number" min="1" max="8" value="3" /></label>
+            <label>數值小數位數<input id="labelDecimals" type="number" min="0" max="3" value="1" /></label>
+            <label>每條線標記／標籤數量上限<input id="labelLimit" type="number" min="2" max="60" value="12" /></label>
+            <label>參考線指標<select id="referenceMetric"><option value="">不顯示</option><option value="temp">溫度</option><option value="humidity">濕度</option><option value="co2">CO₂</option></select></label>
+            <label>參考線數值<input id="referenceValue" type="number" step="any" placeholder="例如 2500" /></label>
+            <label>PNG 圖片寬度<select id="exportWidth"><option value="1800">1800 px</option><option value="2400">2400 px</option><option value="3200">3200 px</option></select></label>
+          </div>
+          <div class="check-options"><label><input id="showPoints" type="checkbox" />顯示標記點</label><label><input id="showValues" type="checkbox" />顯示標記點數值</label><label><input id="showGrid" type="checkbox" checked />格線</label><label><input id="showLegend" type="checkbox" checked />圖例</label><label><input id="beginZero" type="checkbox" />縱軸從 0 開始</label></div>
+          <p class="help-text">標記點與數值標籤均勻抽選，最多依設定數量顯示，避免十萬筆資料重疊；折線與平均計算仍使用全部合格資料。手動座標軸界限只影響顯示，不會刪除資料。</p>
+          <div id="axisSettings" class="axis-settings"></div>
+          <div class="inline-options"><button id="applyFormat" class="primary" type="button">套用圖表格式</button><button id="resetFormat" class="secondary" type="button">還原預設格式</button><button id="saveSettings" class="secondary" type="button">下載分析設定 JSON</button><label class="file-button">載入分析設定<input id="loadSettings" type="file" accept=".json" /></label></div>
+        </details>
+        <p id="analysisStatus" class="help-text" aria-live="polite"></p>
         <div class="callout"><strong>研究建議：</strong>單日模式若選每日平均，會自動改用每小時平均。CO₂ 24 小時圖直接計算篩選後原始觀測，匯出包含各小時樣本數。外站 24 時記為隔日 00:00。</div>
       </section>
 
@@ -51,9 +77,10 @@
         <details class="method"><summary>方法與可重現性說明</summary><p>彙整值使用各時間桶內的算術平均。非數值、空白和無法解析的時間將排除；系統不會自行插補遺失觀測值。下載的 CSV 是目前篩選、欄位與彙整設定的結果，適合留存於研究紀錄。</p></details>
       </section>
     </main>
-    <footer>蜂箱環境資料分析台 v6 · 氣象站時間依檔名日期，24 時記為隔日 00:00 · 請以台灣時區使用</footer>
+    <footer>蜂箱環境資料分析台 v7 · 氣象站時間依檔名日期，24 時記為隔日 00:00 · 請以台灣時區使用</footer>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="app.js"></script>
+    <script src="research.js"></script>
   </body>
 </html>
