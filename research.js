@@ -53,6 +53,8 @@ const researchAnnotations={id:'researchAnnotations',afterDatasetsDraw(chart){
 }};
 const v6CreateChart=createChart;
 createChart=function(canvas,config){
+ if(value('chartMode')==='co2hour'){const start=numberSetting('diurnalStart',0);config.data.labels=[...config.data.labels.slice(start),...config.data.labels.slice(0,start)];config.data.datasets.forEach(d=>d.data=[...d.data.slice(start),...d.data.slice(0,start)])}
+ else if(value('chartMode')!=='overlay'){let lo=Infinity,hi=-Infinity;config.data.datasets.forEach(d=>d.data.forEach(p=>{if(p&&p.y!==null&&Number.isFinite(p.x)){lo=Math.min(lo,p.x);hi=Math.max(hi,p.x)}}));if(Number.isFinite(lo)&&hi>lo){config.options.scales.x.min=lo;config.options.scales.x.max=hi}}
  const o={fontSize:numberSetting('fontSize',12),showMax:checked('showMax'),showMin:checked('showMin'),showPoints:checked('showPoints'),showValues:checked('showValues'),labelLimit:Math.round(numberSetting('labelLimit',12)),decimals:Math.round(numberSetting('labelDecimals',1)),pointSize:numberSetting('pointSize',3),referenceMetric:value('referenceMetric'),referenceValue:numberSetting('referenceValue',NaN),difference:value('chartMode')==='difference'};
  for(const d of config.data.datasets){const k=metricOf(d);d.metricKey=k;d.borderWidth=numberSetting('lineWidth',2);d.pointStyle=value('pointStyle','circle');d.pointBackgroundColor=d.borderColor;const indices=selectIndices(d.data,o.labelLimit);d.pointRadius=c=>(o.showPoints||o.showValues)&&indices.has(c.dataIndex)?o.pointSize:0;d.pointHoverRadius=5;
  if(!d.customName)d.label=d.borderDash?.length?value('outerName-'+k,'外部'+label(k))+'（虛線）':value('innerName-'+k,'內部'+label(k));
@@ -98,7 +100,7 @@ function resetFilterValues(){for(const k of keys){$(k+'Op').value='none';$(k+'Mi
 function applyDefaultFormat(){for(const [id,v] of Object.entries(formatDefaults)){if(typeof v==='boolean')$(id).checked=v;else $(id).value=v}for(const k of keys){for(const part of ['axisMin-','axisMax-','axisStep-'])$(part+k).value='';$('innerName-'+k).value='內部'+label(k);$('outerName-'+k).value='外部'+label(k)}selectedVisible.clear()}
 function csvCell(v){return '"'+String(v??'').replaceAll('"','""')+'"'}
 function currentCsv(){let rows;
- if(value('chartMode')==='co2hour'){rows=[['hour','CO2_mean_ppm','samples'],...state.hourBins.map((b,h)=>[String(h).padStart(2,'0')+':00',b.n?b.sum/b.n:'',b.n])];}
+ if(value('chartMode')==='co2hour'){const start=numberSetting('diurnalStart',0);rows=[['時段','CO₂平均值（ppm）','樣本數'],...Array.from({length:24},(_,i)=>{const h=(i+start)%24,b=state.hourBins[h];return [String(h).padStart(2,'0')+':00',b.n?b.sum/b.n:'',b.n]})];}
  else if(value('chartMode')==='difference'){rows=[['time_local','metric','internal_minus_external','internal_mean','external_mean','internal_samples','external_samples'],...(state.differences||[]).map(x=>[local(new Date(x.time)),x.key,x.value,x.internal,x.external,x.internal_n,x.external_n])];}
  else rows=[['time_local','source','metric','mean','samples'],...state.output.filter(x=>value('chartMode')!=='overlay'||x.source==='hive'&&x.key===value('overlayMetric')).map(x=>[local(new Date(x.time)),x.source,x.key,x.value,x.n])];return rows.map(r=>r.map(csvCell).join(',')).join('\n');
 }
@@ -111,7 +113,7 @@ function exportCharts(charts){
  const exportFont=Math.max(16,chart.$researchOptions.fontSize),scales=Object.fromEntries(Object.entries(source.options.scales).map(([k,a])=>[k,{...a,ticks:{...a.ticks,font:{size:exportFont}},title:{...a.title,font:{size:exportFont+1}}}]));
  const config={...source,data:{...source.data,datasets:source.data.datasets.map((d,i)=>({...d,hidden:!chart.isDatasetVisible(i)}))},options:{...source.options,scales,responsive:false,maintainAspectRatio:false,devicePixelRatio:1,animation:false}};
  const exported=new Chart(canvas,config);exported.$researchOptions={...chart.$researchOptions,fontSize:exportFont};exported.update('none');
- const title=chart.$title||chart.canvas.closest('.chart-card').querySelector('h3').textContent,subtitle=chart.$subtitle||'',context=chart.$researchContext||chartContext();const probe=canvas.getContext('2d');probe.font='24px sans-serif';const titleLines=wrapText(probe,title,width-60);probe.font='17px sans-serif';const notes=wrapText(probe,[subtitle,context].filter(Boolean).join(' · '),width-60);
+ const title=chart.$title||chart.canvas.closest('.chart-card').querySelector('h3').textContent,subtitle=chart.$subtitle||'',context=checked('includeNotes')?(chart.$researchContext||chartContext()):'';const probe=canvas.getContext('2d');probe.font='24px sans-serif';const titleLines=wrapText(probe,title,width-60);probe.font='17px sans-serif';const notes=wrapText(probe,[subtitle,context].filter(Boolean).join(' · '),width-60);
  const visible=source.data.datasets.filter((d,i)=>chart.isDatasetVisible(i)),legend=[];let x=30,y=0;
  if(checked('showLegend'))for(const d of visible){const w=probe.measureText(d.label).width+95;if(x+w>width-30){x=30;y+=32}legend.push({d,x,y});x+=w}
  const header=titleLines.length*32+notes.length*24+35,legendHeight=legend.length?y+52:10;const snapshot=document.createElement('canvas');snapshot.width=canvas.width;snapshot.height=canvas.height;snapshot.getContext('2d').drawImage(canvas,0,0);parts.push({canvas:snapshot,titleLines,notes,header,legend,height:header+canvas.height+legendHeight});exported.destroy();
