@@ -1,12 +1,12 @@
-// Always include both observed endpoints; trim nearby interior ticks, not endpoints.
+// Distribute ticks across the full range instead of deleting late interior ticks.
 function endpointTicks(min,max,base,width=900){
  if(!Number.isFinite(min)||!Number.isFinite(max)||max<min)return [];
  if(min===max)return [{value:min}];
  const capacity=Math.max(2,Math.min(10,Math.floor(width/145))),span=max-min;
- const step=base*Math.max(1,Math.ceil(span/base/(capacity-1)));
+ const intervals=Math.max(1,Math.min(capacity-1,Math.floor(span/base)));
  const anchor=+new Date(new Date(min).setHours(0,0,0,0));
- const gap=span/(capacity-1)*.75,ticks=[{value:min}];
- for(let t=anchor+Math.ceil((min-anchor)/step)*step;t<max;t+=step){if(t-min>=gap&&max-t>=gap)ticks.push({value:t})}
+ const ticks=[{value:min}];
+ for(let i=1;i<intervals;i++){const target=min+span*i/intervals;const t=anchor+Math.round((target-anchor)/base)*base;if(t>ticks[ticks.length-1].value&&t<max)ticks.push({value:t})}
  ticks.push({value:max});return ticks;
 }
 xScale=function(day=false){return {type:'linear',afterBuildTicks:axis=>{
