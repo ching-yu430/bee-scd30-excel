@@ -1,7 +1,7 @@
 /* Research plotting controls. All calculations remain local to the browser. */
 const filterOperators={none:'不篩選',gt:'大於 >',gte:'大於等於 ≥',lt:'小於 <',lte:'小於等於 ≤',range:'介於（含上下限）',outside:'排除區間（含上下限）'};
 const units={temp:'°C',humidity:'%',co2:'ppm'};
-const formatDefaults={chartTitle:'',chartSubtitle:'',xAxisTitle:'',fontSize:'12',lineWidth:'2',pointStyle:'circle',pointSize:'3',labelDecimals:'1',labelLimit:'12',referenceMetric:'',referenceValue:'',exportWidth:'1800',showPoints:false,showValues:false,showGrid:true,showLegend:true,beginZero:false};
+const formatDefaults={chartTitle:'',chartSubtitle:'',xAxisTitle:'',fontSize:'12',lineWidth:'2',pointStyle:'circle',pointSize:'3',labelDecimals:'1',labelLimit:'12',referenceMetric:'',referenceValue:'',exportWidth:'1800',showPoints:false,showValues:false,showMax:false,showMin:false,showGrid:true,showLegend:true,beginZero:false};
 const settingIds=[...Object.keys(formatDefaults),'filterSource','filterStage','overlayMetric','aggregation','chartMode','missing',...keys.flatMap(k=>[k+'Op',k+'Min',k+'Max','axisMin-'+k,'axisMax-'+k,'axisStep-'+k,'innerName-'+k,'outerName-'+k])];
 const selectedVisible=new Map();
 function value(id,fallback=''){const v=$(id)?.value;return v===undefined?fallback:v}
@@ -46,17 +46,18 @@ function selectIndices(data,limit){const valid=[];data.forEach((p,i)=>{const v=p
 const researchAnnotations={id:'researchAnnotations',afterDatasetsDraw(chart){
  const o=chart.$researchOptions;if(!o)return;const {ctx,chartArea:area}=chart;
  if(o.referenceMetric&&Number.isFinite(o.referenceValue)&&!o.difference){const scale=chart.scales[o.referenceMetric]||(o.referenceMetric==='co2'?chart.scales.y:null);if(scale){const y=scale.getPixelForValue(o.referenceValue);if(y>=area.top&&y<=area.bottom){ctx.save();ctx.strokeStyle='#64736e';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(area.left,y);ctx.lineTo(area.right,y);ctx.stroke();ctx.setLineDash([]);ctx.font=o.fontSize+'px sans-serif';ctx.fillStyle='#43534c';ctx.textAlign='right';ctx.fillText(label(o.referenceMetric)+' '+o.referenceValue,area.right-4,Math.max(area.top+14,y-5));ctx.restore()}}}
- if(!o.showValues)return;const placed=[];ctx.save();ctx.font=o.fontSize+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
- chart.data.datasets.forEach((ds,di)=>{if(!chart.isDatasetVisible(di))return;const meta=chart.getDatasetMeta(di);const indices=selectIndices(ds.data,o.labelLimit);indices.forEach(i=>{const p=meta.data[i],data=ds.data[i],v=data!==null&&typeof data==='object'?data.y:data;if(!p||p.skip||v===null||!Number.isFinite(+v)||p.x<area.left||p.x>area.right||p.y<area.top||p.y>area.bottom)return;
- const text=Number(v).toFixed(o.decimals),w=ctx.measureText(text).width+6,h=o.fontSize+4,x=Math.min(area.right-w/2,Math.max(area.left+w/2,p.x));let y=p.y-h;let box=[x-w/2,y-h/2,w,h];const overlaps=b=>placed.some(a=>b[0]<a[0]+a[2]&&b[0]+b[2]>a[0]&&b[1]<a[1]+a[3]&&b[1]+b[3]>a[1]);if(y-h/2<area.top||overlaps(box)){y=p.y+h;box=[x-w/2,y-h/2,w,h]}if(y+h/2>area.bottom||overlaps(box))return;placed.push(box);ctx.fillStyle='rgba(255,255,255,.9)';ctx.fillRect(...box);ctx.fillStyle=ds.borderColor;ctx.fillText(text,x,y);
+ const placed=[];ctx.save();ctx.font=o.fontSize+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+ chart.data.datasets.forEach((ds,di)=>{if(!chart.isDatasetVisible(di))return;const meta=chart.getDatasetMeta(di);const indices=annotationIndices(ds,o);indices.forEach((kind,i)=>{const p=meta.data[i],data=ds.data[i],v=data!==null&&typeof data==='object'?data.y:data;if(!p||p.skip||v===null||!Number.isFinite(+v)||p.x<area.left||p.x>area.right||p.y<area.top||p.y>area.bottom)return;
+ const text=(kind==='auto'||kind==='指定'?'':kind+' ')+Number(v).toFixed(o.decimals),w=ctx.measureText(text).width+6,h=o.fontSize+4,x=Math.min(area.right-w/2,Math.max(area.left+w/2,p.x));let y=p.y-h;let box=[x-w/2,y-h/2,w,h];const overlaps=b=>placed.some(a=>b[0]<a[0]+a[2]&&b[0]+b[2]>a[0]&&b[1]<a[1]+a[3]&&b[1]+b[3]>a[1]);if(y-h/2<area.top||overlaps(box)){y=p.y+h;box=[x-w/2,y-h/2,w,h]}if(kind==='auto'&&(y+h/2>area.bottom||overlaps(box)))return;y=Math.max(area.top+h/2,Math.min(area.bottom-h/2,y));box=[x-w/2,y-h/2,w,h];placed.push(box);ctx.fillStyle='rgba(255,255,255,.94)';ctx.fillRect(...box);ctx.fillStyle=ds.borderColor;ctx.fillText(text,x,y);
  })});ctx.restore();
 }};
 const v6CreateChart=createChart;
 createChart=function(canvas,config){
- const o={fontSize:numberSetting('fontSize',12),showPoints:checked('showPoints'),showValues:checked('showValues'),labelLimit:Math.round(numberSetting('labelLimit',12)),decimals:Math.round(numberSetting('labelDecimals',1)),pointSize:numberSetting('pointSize',3),referenceMetric:value('referenceMetric'),referenceValue:numberSetting('referenceValue',NaN),difference:value('chartMode')==='difference'};
+ const o={fontSize:numberSetting('fontSize',12),showMax:checked('showMax'),showMin:checked('showMin'),showPoints:checked('showPoints'),showValues:checked('showValues'),labelLimit:Math.round(numberSetting('labelLimit',12)),decimals:Math.round(numberSetting('labelDecimals',1)),pointSize:numberSetting('pointSize',3),referenceMetric:value('referenceMetric'),referenceValue:numberSetting('referenceValue',NaN),difference:value('chartMode')==='difference'};
  for(const d of config.data.datasets){const k=metricOf(d);d.metricKey=k;d.borderWidth=numberSetting('lineWidth',2);d.pointStyle=value('pointStyle','circle');d.pointBackgroundColor=d.borderColor;const indices=selectIndices(d.data,o.labelLimit);d.pointRadius=c=>(o.showPoints||o.showValues)&&indices.has(c.dataIndex)?o.pointSize:0;d.pointHoverRadius=5;
  if(!d.customName)d.label=d.borderDash?.length?value('outerName-'+k,'外部'+label(k))+'（虛線）':value('innerName-'+k,'內部'+label(k));
  }
+ preparePointLabels(config,o);
  for(const [name,axis] of Object.entries(config.options.scales||{})){axis.ticks={...axis.ticks,font:{size:o.fontSize}};axis.grid={...axis.grid,display:checked('showGrid')};axis.title={...axis.title,font:{size:o.fontSize+1}};
  if(name==='x'){if(value('xAxisTitle'))axis.title={...axis.title,display:true,text:value('xAxisTitle')}}else{const k=name==='y'?'co2':name;if(keys.includes(k)){axis.beginAtZero=checked('beginZero');for(const [s,prop] of [['axisMin-','min'],['axisMax-','max']])if(value(s+k)!=='')axis[prop]=Number(value(s+k));if(value('axisStep-'+k)!=='')axis.ticks.stepSize=Number(value('axisStep-'+k))}}
  }
@@ -68,7 +69,7 @@ createChart=function(canvas,config){
  const p=document.createElement('p');p.className='chart-context';p.textContent=chartContext();card.appendChild(p);const controls=document.createElement('div');controls.className='chart-controls';const button=document.createElement('button');button.type='button';button.className='secondary';button.textContent='下載這張 PNG';button.onclick=()=>exportCharts([chart]);controls.appendChild(button);card.appendChild(controls);
  const legend=card.querySelector('.line-legend');if(legend){legend.hidden=!checked('showLegend');legend.querySelectorAll('button').forEach((button,i)=>{const key=config.data.datasets[i].label;if(selectedVisible.get(key)===false){chart.setDatasetVisibility(i,false);button.setAttribute('aria-pressed','false')}const before=button.onclick;button.onclick=()=>{before();selectedVisible.set(key,chart.isDatasetVisible(i))}})}
  chart.$subtitle=value('chartSubtitle');chart.$researchContext=chartContext();}
- chart.update('none');return chart;
+ chart.update('none');if(canvas.closest?.('.chart-card'))addPointEditor(chart);return chart;
 };
 const v6Draw=draw;
 draw=function(){

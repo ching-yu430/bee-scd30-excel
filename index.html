@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="styles.override.css" />
+    <link rel="stylesheet" href="workspace.css" />
   </head>
   <body>
     <header class="topbar">
@@ -60,7 +61,7 @@
             <label>參考線數值<input id="referenceValue" type="number" step="any" placeholder="例如 2500" /></label>
             <label>PNG 圖片寬度<select id="exportWidth"><option value="1800">1800 px</option><option value="2400">2400 px</option><option value="3200">3200 px</option></select></label>
           </div>
-          <div class="check-options"><label><input id="showPoints" type="checkbox" />顯示標記點</label><label><input id="showValues" type="checkbox" />顯示標記點數值</label><label><input id="showGrid" type="checkbox" checked />格線</label><label><input id="showLegend" type="checkbox" checked />圖例</label><label><input id="beginZero" type="checkbox" />縱軸從 0 開始</label></div>
+          <div class="check-options"><label><input id="pickPoints" type="checkbox" />點選標示</label><label><input id="showMax" type="checkbox" />標示最高點</label><label><input id="showMin" type="checkbox" />標示最低點</label><label><input id="showPoints" type="checkbox" />顯示標記點</label><label><input id="showValues" type="checkbox" />自動挑選數值</label><label><input id="showGrid" type="checkbox" checked />格線</label><label><input id="showLegend" type="checkbox" checked />圖例</label><label><input id="beginZero" type="checkbox" />縱軸從 0 開始</label></div>
           <p class="help-text">標記點與數值標籤均勻抽選，最多依設定數量顯示，避免十萬筆資料重疊；折線與平均計算仍使用全部合格資料。手動座標軸界限只影響顯示，不會刪除資料。</p>
           <div id="axisSettings" class="axis-settings"></div>
           <div class="inline-options"><button id="applyFormat" class="primary" type="button">套用圖表格式</button><button id="resetFormat" class="secondary" type="button">還原預設格式</button><button id="saveSettings" class="secondary" type="button">下載分析設定 JSON</button><label class="file-button">載入分析設定<input id="loadSettings" type="file" accept=".json" /></label></div>
@@ -81,6 +82,8 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="app.js"></script>
+    <script src="points.js"></script>
     <script src="research.js"></script>
+    <script src="workspace.js"></script>
   </body>
 </html>
