@@ -39,7 +39,8 @@
         </div>
         <div class="range-shortcuts"><span id="dataRange">資料期間：尚未讀取</span><button data-range="all">全部資料</button><button data-range="7">最後 7 天</button><button data-range="30">最後 30 天</button></div>
         <div class="filters"><strong>數值篩選（留白即不限制）</strong><label>溫度最小<input id="tempMin" type="number" step="any" placeholder="例如 20" /></label><label>溫度最大<input id="tempMax" type="number" step="any" placeholder="例如 40" /></label><label>濕度最小<input id="humidityMin" type="number" step="any" /></label><label>濕度最大<input id="humidityMax" type="number" step="any" /></label><label>CO₂ 最小<input id="co2Min" type="number" step="any" placeholder="例如 2500" /></label><label>CO₂ 最大<input id="co2Max" type="number" step="any" /></label></div>
-        <div class="callout"><strong>研究建議：</strong>30 秒資料適合先以 5–15 分鐘或每小時平均呈現；原始資料可用於檢查短暫異常，但不宜直接作為長期趨勢圖。</div>
+        <button id="resetFilters" type="button">清除全部數值篩選</button>
+        <div class="callout"><strong>研究建議：</strong>單日模式若選每日平均，會自動改用每小時平均。CO₂ 24 小時圖直接計算篩選後原始觀測，匯出包含各小時樣本數。外站 24 時記為隔日 00:00。</div>
       </section>
 
       <section id="chartCard" class="hidden"><div class="section-heading chart-heading"><div><p class="eyebrow">STEP 3 · 視覺化</p><h2>時間序列圖</h2></div><div class="actions"><button id="downloadPng">下載 PNG</button><button id="downloadCsv">下載彙整資料 CSV</button></div></div>
@@ -50,7 +51,7 @@
         <details class="method"><summary>方法與可重現性說明</summary><p>彙整值使用各時間桶內的算術平均。非數值、空白和無法解析的時間將排除；系統不會自行插補遺失觀測值。下載的 CSV 是目前篩選、欄位與彙整設定的結果，適合留存於研究紀錄。</p></details>
       </section>
     </main>
-    <footer>蜂箱環境資料分析台 · 靜態網頁工具 · 建議在論文或報告中記錄彙整尺度與資料排除規則</footer>
+    <footer>蜂箱環境資料分析台 v6 · 氣象站時間依檔名日期，24 時記為隔日 00:00 · 請以台灣時區使用</footer>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <script src="app.js"></script>
