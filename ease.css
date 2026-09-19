@@ -2,3 +2,4 @@
 @media(max-width:650px){.workflow{gap:6px}.workflow button{padding:10px 6px;flex-direction:column;align-items:center;text-align:center;font-size:12px}.workflow small{display:none}.quick-start{padding:16px}.start-actions{flex-direction:column}.start-actions button{width:100%}.page-tabs{margin-top:14px}.appearance-fold .chart-editor{padding:0}}
 .tick-settings{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:16px 0;padding:14px;background:#eef3ec;border-radius:8px}.tick-settings>label{min-width:180px}.tick-custom{display:flex;gap:12px}.tick-custom label{width:110px}.tick-settings .help-text{flex-basis:100%;margin:0}
 :root{--bee-tick-controls:ready}
+.mapping-group:has([data-key=rain]) .mapping-value-fields{grid-template-columns:repeat(2,minmax(0,1fr))}

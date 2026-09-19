@@ -19,7 +19,8 @@ function fixedTimeTicks(min,max,step){
  ticks.push({value:max});return ticks;
 }
 function selectedTimeStep(){if(typeof value!=='function')return 0;const mode=value('xTickInterval','auto');if(!mode||mode==='auto')return 0;if(mode==='custom')return Number(value('xTickCount'))*Number(value('xTickUnit'));return Number(mode)}
+function timeTickLabel(day,v,index,ticks,axis){const text=timeLabel(v,false),lines=day?[text.slice(11)]:[text.slice(0,10),text.slice(11)];if(ticks.length<2)return lines;const edge=index===0||index===ticks.length-1;if(!edge)return lines;const other=ticks[index===0?1:index-1].value,span=axis.max-axis.min,width=axis.width||axis.chart.width;const pixels=span?Math.abs(v-other)/span*width:width;const font=Number(axis.options.ticks.font?.size)||12;const needed=day?font*4:font*6.5;return pixels<needed?['','',...lines]:lines}
 xScale=function(day=false){const step=selectedTimeStep();return {type:'linear',afterBuildTicks:axis=>{
  const base=({raw:60000,'5min':300000,'15min':900000,hour:3600000,day:86400000})[effectiveMode()]||3600000;
  axis.ticks=step?fixedTimeTicks(axis.min,axis.max,step):endpointTicks(axis.min,axis.max,base,axis.chart.width);
- },ticks:{autoSkip:false,minRotation:0,maxRotation:step?45:0,align:'inner',callback:v=>{const text=timeLabel(v,false);return day?text.slice(11):[text.slice(0,10),text.slice(11)]}},title:{display:true,text:day?'時間':'日期與時間'}}};
+ },ticks:{autoSkip:false,minRotation:0,maxRotation:step?45:0,padding:10,align:'inner',callback:function(v,index,ticks){return timeTickLabel(day,v,index,ticks,this)}},title:{display:true,text:day?'時間':'日期與時間',padding:{top:14,bottom:8}}}};
