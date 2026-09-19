@@ -8,7 +8,7 @@ function annotationIndices(ds,o){
  if(o.showMin&&min>=0)result.set(min,'最低');if(o.showMax&&max>=0)result.set(max,max===min&&o.showMin?'最高／最低':'最高');return result;
 }
 function preparePointLabels(config,o){
- const mode=value('chartMode');config.data.datasets.forEach(ds=>{ds.researchXKeys=config.data.labels;ds.researchSeries=[mode,effectiveMode(),metricOf(ds),ds.customName?ds.label:ds.borderDash?.length?'weather':'hive'].join('|');ds.researchSelected=annotationIndices(ds,o);const dots=selectIndices(ds.data,o.labelLimit);ds.pointRadius=c=>ds.researchSelected.has(c.dataIndex)||(o.showPoints&&dots.has(c.dataIndex))?o.pointSize:0});
+ const mode=value('chartMode');config.data.datasets.forEach(ds=>{ds.researchXKeys=config.data.labels;ds.researchSeries=[mode,effectiveMode(),metricOf(ds),ds.customName?ds.label:ds.borderDash?.length?'weather':'hive'].join('|');ds.researchSelected=annotationIndices(ds,o);const dots=selectIndices(ds.data,o.labelLimit),single=ds.data.filter(p=>pointValue(p)!==null).length===1;ds.pointRadius=c=>ds.researchSelected.has(c.dataIndex)||single||(o.showPoints&&dots.has(c.dataIndex))?Math.max(single?3:0,o.pointSize):0});
  config.options.onClick=(event,elements,chart)=>{if(!checked('pickPoints'))return;const hit=chart.getElementsAtEventForMode(event,'nearest',{intersect:false},false)[0];if(!hit)return;const ds=chart.data.datasets[hit.datasetIndex],i=hit.index;if(pointValue(ds.data[i])===null)return;togglePoint(chart,ds,i)};
 }
 function togglePoint(chart,ds,i,remove=false){const id=pointIdentity(ds,i);if(remove||manualLabels.has(id))manualLabels.delete(id);else manualLabels.add(id);refreshPointLabels(chart)}
