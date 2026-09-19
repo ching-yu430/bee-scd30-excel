@@ -41,3 +41,34 @@ const restoreBeforeWorkflow=$('restoreAnomalyRange').onclick;$('restoreAnomalyRa
 const anomalyReturn=document.createElement('button');anomalyReturn.className='secondary';anomalyReturn.id='backToAnomalies';anomalyReturn.textContent='返回異常檢查';anomalyReturn.onclick=()=>switchPage('anomaly');document.querySelector('.chart-heading .actions').appendChild(anomalyReturn);
 const beforeStyleLoad=$('loadSettings').onchange;$('loadSettings').onchange=async e=>{await beforeStyleLoad(e);syncPeriodUI()};
 syncPeriodUI();showWorkspaceStage(1,false);
+
+// Compact navigation: keep navigation out of the plotting surface.
+document.querySelector('.topbar > div').after(tabs);
+const stepPages=document.createElement('div');stepPages.className='step-pages';
+for(const button of [...stepNav.querySelectorAll('[data-step]')])stepPages.appendChild(button);
+stepNav.append(stepPages,$('sourceNext'));document.querySelector('.step-actions')?.remove();
+$('sourceNext').onclick=()=>showWorkspaceStage(workspaceStage===1?2:3);
+document.body.appendChild(styleButton);
+function syncCompactNavigation(){
+ document.body.dataset.workspacePage=workspacePage;
+ $('sourceNext').hidden=workspacePage!=='plot'||workspaceStage===3;
+ $('sourceNext').textContent=workspaceStage===1?'下一步 →':'更新並看圖 →';
+ styleButton.hidden=workspacePage!=='plot'||workspaceStage!==3;
+ for(const name of ['plot','query','anomaly'])$(name+'Tab').tabIndex=name===workspacePage?0:-1;
+}
+const stageBeforeCompact=showWorkspaceStage;showWorkspaceStage=function(...args){stageBeforeCompact(...args);syncCompactNavigation()};
+const pageBeforeCompact=switchPage;switchPage=function(...args){pageBeforeCompact(...args);syncCompactNavigation()};
+function arrangeChartFooters(){
+ for(const card of document.querySelectorAll('#charts > .chart-card,#co2DailyCard')){
+  const frame=card.querySelector('.canvas-frame');let plot=frame;
+  if(frame){if(!frame.parentElement.classList.contains('chart-scroll')){const scroll=document.createElement('div');scroll.className='chart-scroll';scroll.tabIndex=0;scroll.setAttribute('role','region');scroll.setAttribute('aria-label','圖表區，可左右捲動');frame.before(scroll);scroll.appendChild(frame)}plot=frame.parentElement}
+  const legend=card.querySelector('.line-legend'),controls=card.querySelector('.chart-controls');
+  if(!legend&&!controls)continue;
+  let row=card.querySelector('.chart-footer-row');if(!row){row=document.createElement('div');row.className='chart-footer-row'}
+  plot?.after(row);
+  if(legend)row.appendChild(legend);if(controls)row.appendChild(controls);
+ }
+ $('backToAnomalies').hidden=!anomalyActive;
+}
+const pickerBeforeCompact=syncChartPicker;syncChartPicker=function(){pickerBeforeCompact();arrangeChartFooters()};
+syncCompactNavigation();
