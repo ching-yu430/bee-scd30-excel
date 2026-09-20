@@ -1,10 +1,5 @@
-let workspaceStage = 3;
-let workspacePage = 'data';
-
-// Existing elements we need to manipulate
-const controlsCard = $('controlsCard');
-const plotPage = $('plotPage');
-const tabs = document.querySelector('.page-tabs') || document.querySelector('.topbar'); 
+workspaceStage = 3;
+workspacePage = 'data';
 
 // Shared canonical timestamps remain compatible with calculation, queries and saved settings.
 function wholeDayBounds(start, end) {
@@ -14,11 +9,12 @@ function wholeDayBounds(start, end) {
   return {start: local(a), end: local(new Date(+b - 1)) + '.999'};
 }
 
-// Ensure elements hide first
-document.querySelector('.hero').hidden = true;
-guide.hidden = true;
-formatStatus.hidden = true;
-$('emptyPlot').hidden = true;
+// Ensure elements hide first safely
+const heroEl = document.querySelector('.hero');
+if (heroEl) heroEl.hidden = true;
+if (typeof guide !== 'undefined' && guide) guide.hidden = true;
+if (typeof formatStatus !== 'undefined' && formatStatus) formatStatus.hidden = true;
+if ($('emptyPlot')) $('emptyPlot').hidden = true;
 
 // Tab Setup
 const dataTab = document.createElement('button');
@@ -165,7 +161,12 @@ chartPickerLabel.textContent = '目前查看';
 const chartPicker = document.createElement('select');
 chartPicker.id = 'chartPicker';
 chartPickerLabel.appendChild(chartPicker);
-document.querySelector('.chart-heading')?.after(chartPickerLabel);
+const chartHeadingEl = document.querySelector('.chart-heading');
+if (chartHeadingEl) {
+  chartHeadingEl.after(chartPickerLabel);
+} else {
+  (document.getElementById('chartCard') || plotPage || document.body).appendChild(chartPickerLabel);
+}
 
 function arrangeChartFooters() {
   for (const card of document.querySelectorAll('#charts > .chart-card, #co2DailyCard')) {
