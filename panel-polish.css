@@ -1,16 +1,16 @@
+/* v18 panel-polish.css — adapted for control-bar layout */
 .topbar .page-tabs button{background:#eaf0fa;color:#274a7a;border-color:#b8c9e1}.topbar .page-tabs button[aria-selected=true]{background:#294e80;color:#fff;border-color:#294e80}
-.step-pages button{background:#f1ebf7;color:#644378;border-color:#cebddb}.step-pages button[aria-current=step]{background:#705088;color:#fff;border-color:#705088}
-.topbar .page-tabs button:hover{background:#d4e1f3}.topbar .page-tabs button[aria-selected=true]:hover{background:#294e80}.step-pages button:hover{background:#e2d5ee}.step-pages button[aria-current=step]:hover{background:#705088}
-#openStyle,.style-open #openStyle{right:0;border-radius:12px 0 0 12px;border-right:0;top:40%;width:40px}.style-open #openStyle{visibility:hidden}
-#stylePanel{bottom:0;padding-bottom:26px}.style-header h2{font-size:18px}
-.panel-downloads{display:grid;gap:10px;margin-top:16px}.panel-downloads button{width:100%}
-#stylePanel>.editor-section{margin-top:18px;padding:16px;border:1px solid #cdd8d0;border-radius:12px;background:#f3f6f0}
-#stylePanel>.editor-section>summary{font-size:17px;font-weight:700;cursor:pointer}
-#stylePanel .export-settings{margin-top:16px}.chart-card .chart-controls{display:none}
+.topbar .page-tabs button:hover{background:#d4e1f3}.topbar .page-tabs button[aria-selected=true]:hover{background:#294e80}
+.chart-card .chart-controls{display:none}
 .chart-heading{display:flex;align-items:center;justify-content:space-between;border:0;margin:0 0 8px;padding:0;gap:12px}.chart-heading h2{font-size:18px;margin:0}.chart-heading .actions{display:none}.chart-heading .chart-picker{margin:0;max-width:520px;flex:1}
 #chartCard .canvas-frame{height:max(460px,calc(100dvh - 245px))}
-body[data-stage="3"][data-workspace-page="plot"] main{padding-top:10px;padding-right:48px}
 .shade-palette{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px;border-top:1px solid #d5ddd4;padding-top:16px}.shade-palette h4{grid-column:1/-1;margin:0}.shade-palette label{display:flex;align-items:center;justify-content:space-between;gap:10px}.shade-palette input{width:48px;height:36px}
 #anomalySettings{border:2px solid #bd9138;border-radius:12px;background:#fffaf0;padding:16px;margin:16px 0}
 #anomalySettings>summary{font-size:18px;color:#785516;padding:6px 0;font-weight:700}.anomaly-note{font-size:13px;line-height:1.7;background:#eef3fa;padding:12px;border-radius:8px}.anomaly-cards{grid-template-columns:repeat(5,minmax(0,1fr))}
-@media(max-width:700px){.anomaly-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.anomaly-cards button:first-child{grid-column:1/-1}#chartCard .canvas-frame{height:500px}.chart-heading h2{display:none}.chart-heading .chart-picker{width:100%}#openStyle{width:34px}body[data-stage="3"][data-workspace-page="plot"] main{padding-right:40px}}
+#controlsCard .section-heading{display:none}
+.control-bar .secondary{font-size:13px;padding:8px 14px}
+.control-bar .primary{font-size:14px;padding:8px 18px}
+.expand-panel .editor-section{margin-top:10px;padding:14px;border:1px solid #cdd8d0;border-radius:10px;background:#f3f6f0}
+.expand-panel .editor-section>summary{font-size:16px;font-weight:700;cursor:pointer}
+#chartCard{margin-top:8px}
+@media(max-width:700px){.anomaly-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.anomaly-cards button:first-child{grid-column:1/-1}#chartCard .canvas-frame{height:500px}.chart-heading h2{display:none}.chart-heading .chart-picker{width:100%}}
