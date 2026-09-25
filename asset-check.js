@@ -11,5 +11,5 @@ if(typeof selectedRainSeries!=='function'||!document.getElementById('rain-hive-h
 if(!document.getElementById('plotQueryResults')||!document.getElementById('calculateEvents'))missingWebsiteParts.push('query-actions.js（查詢功能）');
 if(getComputedStyle(document.documentElement).getPropertyValue('--bee-tick-controls').trim()!=='ready')missingWebsiteParts.push('新版 ease.css（刻度區排版）');
 if(missingWebsiteParts.length){const banner=document.createElement('div');banner.setAttribute('role','alert');banner.style.cssText='padding:18px;margin:16px;border:2px solid #a33;background:#fff4ec;color:#721c14;line-height:1.8';banner.textContent='網站更新不完整：缺少或仍使用舊版 '+missingWebsiteParts.join('、')+'。請完整上傳同一版本的檔案，再重新整理。';document.querySelector('main').prepend(banner)}
-else document.querySelector('footer').textContent='蜂箱環境資料分析台 v18 · 資料僅在瀏覽器處理';
+else document.querySelector('footer').textContent='蜂箱環境資料分析台 v19 · 資料僅在瀏覽器處理';
 const initialHelp=document.getElementById('emptyPlot');if(initialHelp)initialHelp.textContent='匯入資料後，即可製作圖表或查詢紀錄。';
