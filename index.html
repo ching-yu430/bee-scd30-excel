@@ -29,7 +29,7 @@
       </section>
 
       <section class="card upload-grid" aria-label="資料匯入">
-        <div class="upload-panel"><div class="source-icon hive">⌂</div><div><h3>蜂箱 SCD30 資料</h3><p>Excel 或 CSV；支援每 30 秒一筆的高頻紀錄。</p></div><label class="file-button">選擇檔案<input id="hiveFile" type="file" accept=".xlsx,.xls,.csv" /></label><p id="hiveStatus" class="file-status">尚未選擇檔案</p></div>
+        <div class="upload-panel"><div class="source-icon hive">⌂</div><div><h3>蜂箱 SCD30 資料</h3><p>可多選 Excel／CSV，中英文欄位皆可。請合併同一蜂箱的紀錄。</p></div><label class="file-button">選擇多個檔案<input id="hiveFile" type="file" accept=".xlsx,.xls,.csv" multiple /></label><p id="hiveStatus" class="file-status">尚未選擇檔案</p></div>
         <div class="upload-panel"><div class="source-icon station">⌁</div><div><h3>外部氣象站資料</h3><p>可一次選取多個單日 Excel／CSV 檔，會自動合併比較。</p></div><label class="file-button">選擇多個檔案<input id="weatherFile" type="file" multiple accept=".xlsx,.xls,.csv" /></label><p id="weatherStatus" class="file-status">尚未選擇檔案</p></div>
       </section>
 
@@ -103,6 +103,7 @@
     <script src="anomalies.js?v=17"></script>
     <script src="workflow.js?v=17"></script>
     <script src="panel-polish.js?v=17"></script>
-    <script src="asset-check.js?v=17"></script>
+    <script src="hive-import.js?v=18"></script>
+    <script src="asset-check.js?v=18"></script>
   </body>
 </html>
