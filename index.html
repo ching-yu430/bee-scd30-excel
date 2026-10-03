@@ -7,15 +7,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&family=Source+Serif+4:wght@600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=17" />
-    <link rel="stylesheet" href="styles.override.css?v=17" />
-    <link rel="stylesheet" href="workspace.css?v=17" />
-    <link rel="stylesheet" href="layout.css?v=17" />
-    <link rel="stylesheet" href="query.css?v=17" />
-    <link rel="stylesheet" href="ease.css?v=17" />
-    <link rel="stylesheet" href="anomalies.css?v=17" />
-    <link rel="stylesheet" href="workflow.css?v=17" />
-    <link rel="stylesheet" href="panel-polish.css?v=17" />
+    <link rel="stylesheet" href="styles.css?v=20.3" />
+    <link rel="stylesheet" href="styles.override.css?v=20.3" />
+    <link rel="stylesheet" href="workspace.css?v=20.3" />
+    <link rel="stylesheet" href="layout.css?v=20.3" />
+    <link rel="stylesheet" href="query.css?v=20.3" />
+    <link rel="stylesheet" href="ease.css?v=20.3" />
+    <link rel="stylesheet" href="anomalies.css?v=20.3" />
+    <link rel="stylesheet" href="workflow.css?v=20.3" />
+    <link rel="stylesheet" href="panel-polish.css?v=20.3" />
+    <link rel="stylesheet" href="comparison.css?v=20.3" />
   </head>
   <body>
     <header class="topbar">
@@ -29,7 +30,8 @@
       </section>
 
       <section class="card upload-grid" aria-label="資料匯入">
-        <div class="upload-panel"><div class="source-icon hive">⌂</div><div><h3>蜂箱 SCD30 資料</h3><p>可多選 Excel／CSV，中英文欄位皆可。請合併同一蜂箱的紀錄。</p></div><label class="file-button">選擇多個檔案<input id="hiveFile" type="file" accept=".xlsx,.xls,.csv" multiple /></label><p id="hiveStatus" class="file-status">尚未選擇檔案</p></div>
+        <div class="upload-panel"><div class="source-icon hive">⌂</div><div><h3>我的蜂箱</h3><p>同一蜂箱的 Excel／CSV 可多選。</p></div><label class="file-button">選擇我的資料<input id="hiveFile" type="file" accept=".xlsx,.xls,.csv" multiple /></label><p id="hiveStatus" class="file-status">尚未選擇檔案</p></div>
+        <div class="upload-panel"><div class="source-icon hive">⌂</div><div><h3>他人的蜂箱</h3><p>分開匯入，保留各自數值與樣本數。</p></div><label class="file-button">選擇他人的資料<input id="peerFile" type="file" accept=".xlsx,.xls,.csv" multiple /></label><p id="peerStatus" class="file-status">尚未選擇檔案</p></div>
         <div class="upload-panel"><div class="source-icon station">⌁</div><div><h3>外部氣象站資料</h3><p>可一次選取多個單日 Excel／CSV 檔，會自動合併比較。</p></div><label class="file-button">選擇多個檔案<input id="weatherFile" type="file" multiple accept=".xlsx,.xls,.csv" /></label><p id="weatherStatus" class="file-status">尚未選擇檔案</p></div>
       </section>
 
@@ -87,23 +89,24 @@
     <footer>蜂箱環境資料分析台 v7 · 氣象站時間依檔名日期，24 時記為隔日 00:00 · 請以台灣時區使用</footer>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="app.js?v=17"></script>
-    <script src="points.js?v=17"></script>
-    <script src="research.js?v=19"></script>
-    <script src="time-axis.js?v=17"></script>
-    <script src="workspace.js?v=17"></script>
-    <script src="layout.js?v=17"></script>
-    <script src="query.js?v=17"></script>
-    <script src="query-ui.js?v=17"></script>
-    <script src="ease.js?v=17"></script>
-    <script src="tick-controls.js?v=17"></script>
-    <script src="exceedance.js?v=17"></script>
-    <script src="query-actions.js?v=17"></script>
-    <script src="rainfall.js?v=17"></script>
-    <script src="anomalies.js?v=17"></script>
-    <script src="workflow.js?v=17"></script>
-    <script src="panel-polish.js?v=17"></script>
-    <script src="hive-import.js?v=19"></script>
-    <script src="asset-check.js?v=19"></script>
+    <script src="app.js?v=20.3"></script>
+    <script src="points.js?v=20.3"></script>
+    <script src="research.js?v=20.3"></script>
+    <script src="time-axis.js?v=20.3"></script>
+    <script src="workspace.js?v=20.3"></script>
+    <script src="layout.js?v=20.3"></script>
+    <script src="query.js?v=20.3"></script>
+    <script src="query-ui.js?v=20.3"></script>
+    <script src="ease.js?v=20.3"></script>
+    <script src="tick-controls.js?v=20.3"></script>
+    <script src="exceedance.js?v=20.3"></script>
+    <script src="query-actions.js?v=20.3"></script>
+    <script src="rainfall.js?v=20.3"></script>
+    <script src="anomalies.js?v=20.3"></script>
+    <script src="workflow.js?v=20.3"></script>
+    <script src="panel-polish.js?v=20.3"></script>
+    <script src="hive-import.js?v=20.3"></script>
+    <script src="comparison.js?v=20.3"></script>
+    <script src="asset-check.js?v=20.3"></script>
   </body>
 </html>

@@ -16,7 +16,7 @@ const resetBeforeShade=applyDefaultFormat;applyDefaultFormat=function(){resetBef
 const anomalyNote=document.createElement('p');anomalyNote.className='anomaly-note';anomalyNote.textContent='各指標與條件獨立判斷；同時命中多項會分別列出。「全部異常」涵蓋超標與突升／突降，並非同一時間必須全部符合。';$('anomalySettings').after(anomalyNote);
 function syncPanelDownloads(){
  const plot=workspacePage==='plot',query=workspacePage==='query';
- styleButton.hidden=plot?workspaceStage!==3:!(state.hive||state.weather);
+ styleButton.hidden=plot?workspaceStage!==3:!(state.hive||state.peer||state.weather);
  editFold.hidden=!plot;
  exportSection.querySelector('.export-settings').hidden=!plot;
  for(const id of ['downloadCurrentPng','downloadPng','downloadCsv'])$(id).hidden=!plot;
