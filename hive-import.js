@@ -37,7 +37,7 @@ function showHiveMappings(source='hive'){
  const section=document.createElement('div');section.id=source+'FileMappings';section.style.cssText='grid-column:1/-1;min-width:0';
  const title=document.createElement('h3');title.textContent=sourceName(source)+'（逐檔辨識欄位）';section.appendChild(title);
  const note=document.createElement('p');note.className='mapping-help';note.textContent='點開檔名可修正欄位。單位：溫度 °C、濕度 %、CO₂ ppm；每次選檔會取代上一批。';section.appendChild(note);
- const quality=document.createElement('div');quality.style.cssText='padding:16px;border:1px solid #bd8d35;border-radius:10px;margin-bottom:16px;background:#fff9ed';
+ const quality=document.createElement('div');quality.className='import-quality';
  quality.innerHTML='<label class="check-tile"><input id="'+source+'QualityScreen" type="checkbox">排除超出 SCD30 檢查範圍的整筆紀錄</label><p>溫度 0～50 °C（操作範圍）、濕度 0～100%、CO₂ 0～40000 ppm（數位量測範圍）。任一項超出或非數值，整筆不參與繪圖、平均、查詢與異常檢查；空白不補零。這不是蜂群健康門檻，原始檔不變。</p><a href="https://sensirion.com/media/documents/4EAF6AF8/61652C3C/Sensirion_CO2_Sensors_SCD30_Datasheet.pdf" target="_blank" rel="noopener">SCD30 規格依據</a> ';
  const toggle=quality.querySelector('input');toggle.checked=d.screen;toggle.onchange=()=>{state[source]=mergeHiveBatches(d.batches,toggle.checked);state.querySubset=null;manualLabels.clear();markDirty();setup()};
  const issues=[...d.qualityIssues,...(d.timeIssues||[])];const report=document.createElement('button');report.type='button';report.className='secondary';report.textContent=`下載品質與時間檢查紀錄（${issues.length} 筆）`;report.disabled=!issues.length;
