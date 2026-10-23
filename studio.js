@@ -1,4 +1,4 @@
-/* Presentation only: move existing controls, retaining their values and handlers. */
+/* Keep common chart controls together and preview appearance edits live. */
 function studioBlock(parent,title,hint=''){
  const block=document.createElement('section');block.className='studio-block';
  const h=document.createElement('h4');h.textContent=title;block.appendChild(h);
@@ -36,6 +36,7 @@ function syncStudioColors(){
 const studioEditor=document.querySelector('.chart-editor');
 const oldStudioGroups=[...studioEditor.querySelectorAll(':scope > .editor-section')];
 const lookGroup=studioGroup(studioEditor,'studioAppearance','圖表外觀','標題、文字、線條與圖例');
+lookGroup.open=true;
 const annotationGroup=studioGroup(studioEditor,'studioAnnotations','數值與標註','指定時間、最高／最低值與超標區域');
 const axisGroup=studioGroup(studioEditor,'studioAxes','座標軸','軸標題、顯示範圍與格線');
 // Rainfall originally puts color and axis title inside the same label.
@@ -47,8 +48,10 @@ const lineBlock=studioBlock(lookGroup,'線條與顏色','同一指標共用顏�
 lineBlock.appendChild($('metricControls'));moveFields(lineBlock,['rainColor','lineWidth']);
 controls=function(){return keys.map(k=>'<label class="metric studio-color"><strong>'+label(k)+'</strong><input data-metric="'+k+'" data-prop="color" type="color" value="'+state.metrics[k].color+'" aria-label="'+label(k)+'線條顏色"></label>').join('')};
 const legendBlock=studioBlock(lookGroup,'圖例');moveFields(legendBlock,['showLegend']);
-const legendNames=section('修改圖例名稱');legendNames.classList.add('studio-nested');legendBlock.appendChild(legendNames);
-for(const k of keys){const group=studioBlock(legendNames,label(k));moveFields(group,['innerName-'+k,'peerName-'+k,'outerName-'+k]);studioLabel('innerName-'+k,'我的蜂箱');studioLabel('peerName-'+k,'他人的蜂箱');studioLabel('outerName-'+k,'外部氣象站')}
+const legendNames=studioBlock(legendBlock,'圖例名稱','依目前圖表顯示可編輯的來源，修改後即時套用。');
+const legendMetricGroups=new Map();
+for(const k of keys){const group=studioBlock(legendNames,label(k));legendMetricGroups.set(k,group);moveFields(group,['innerName-'+k,'peerName-'+k,'outerName-'+k]);studioLabel('innerName-'+k,'我的蜂箱');studioLabel('peerName-'+k,'他人的蜂箱');studioLabel('outerName-'+k,'外部氣象站')}
+lookGroup.prepend(legendBlock);
 
 const manualBlock=studioBlock(annotationGroup,'手動指定','開啟點選標註後，點圖上的資料點；或展開下方時間選擇。');
 moveFields(manualBlock,['pickPoints']);manualBlock.appendChild(clear);
@@ -66,6 +69,7 @@ for(const k of keys){const field=document.createElement('label');field.innerHTML
 moveFields(axisText,['rainAxisTitle']);
 const axisBounds=studioBlock(axisGroup,'縱軸範圍與刻度','留白時自動安排。僅改變顯示，不篩除資料。');axisBounds.appendChild($('axisSettings'));moveFields(axisBounds,['beginZero']);
 const axisGrid=studioBlock(axisGroup,'格線');moveFields(axisGrid,['showGrid']);
+const timeTicks=studioBlock(axisGroup,'橫軸刻度');timeTicks.appendChild(tickPanel);
 
 // Retain these nodes: existing workspace switching refers to them directly.
 exportSection.id='studioExport';exportSection.classList.add('studio-group');
@@ -80,6 +84,10 @@ const reusable=studioBlock(downloadOptions,'重用分析設定','設定檔保留
 reusable.append(...savedControls.slice(2));
 // Place image quality directly before its download buttons, settings afterward.
 exportActions.before(downloadOptions);imageOptions.after(exportActions);downloadOptions.appendChild(reusable);
+// Keep the common downloads beside the chart instead of below every setting.
+const chartActions=document.querySelector('.chart-heading .actions');chartActions.classList.add('chart-actions');
+chartActions.append(styleButton,$('downloadCurrentPng'),$('downloadCsv'));
+$('downloadCsv').textContent='下載資料 CSV';
 const dataActions=document.createElement('div');dataActions.className='panel-downloads studio-data-downloads';exportSection.appendChild(dataActions);dataActions.append($('exportQuery'),$('downloadEvents'),$('downloadAnomalies'));
 
 oldStudioGroups.forEach(group=>group.remove());
@@ -92,6 +100,10 @@ function syncStudio(){
  syncStudioColors();
  for(const k of keys)$('axisTitle-'+k).value=state.metrics[k].title;
  const charts=[...state.charts,...(state.co2Chart?[state.co2Chart]:[])];
+ const current=charts.find(chart=>{const card=chart.canvas.closest('.chart-card');return card&&!card.hidden&&!card.classList.contains('hidden')});
+ const metrics=current?new Set(current.data.datasets.map(metricOf)):new Set(keys);
+ const sources=value('chartMode')==='overlay'?[value('overlaySource','hive')]:activePlotSources();
+ for(const k of keys){legendMetricGroups.get(k).hidden=!metrics.has(k);for(const [source,prefix]of [['hive','inner'],['peer','peer'],['weather','outer']])$(prefix+'Name-'+k).closest('label').hidden=!sources.includes(source)}
  for(const panel of pointHost.children){const chart=charts.find(c=>c.canvas.id===panel.dataset.canvas),card=chart?.canvas.closest('.chart-card');panel.hidden=!card||card.hidden||card.classList.contains('hidden')}
  pointEmpty.hidden=charts.length>0;
  $('pointStyle').disabled=!checked('showPoints');$('pointSize').disabled=!(checked('showPoints')||checked('showValues')||checked('showMax')||checked('showMin')||checked('pickPoints')||manualLabels.size);
@@ -99,7 +111,7 @@ function syncStudio(){
 }
 const pickerBeforeStudio=syncChartPicker;syncChartPicker=function(){pickerBeforeStudio();syncStudio()};
 const drawBeforeStudio=draw;draw=function(){const open=Boolean(pointHost.querySelector('details[open]'));pointHost.replaceChildren();drawBeforeStudio();syncStudio();if(open)for(const panel of pointHost.children)panel.open=true};
-const panelsBeforeStudio=syncPanelDownloads;syncPanelDownloads=function(){panelsBeforeStudio();const plot=workspacePage==='plot',title=plot?'外觀、標註與下載':'資料下載';stylePanel.querySelector('h2').textContent=title;stylePanel.setAttribute('aria-label',title);styleButton.textContent=plot?title:'下載結果';exportSection.querySelector('summary').firstChild.textContent=plot?'下載與設定檔':'下載結果';stylePanel.querySelector('.studio-intro').hidden=!plot;exportActions.hidden=!plot;dataActions.hidden=plot;exportHint.textContent=plot?'圖表圖片、資料與可重用設定':'依目前分頁下載查詢或檢查結果'};
+const panelsBeforeStudio=syncPanelDownloads;syncPanelDownloads=function(){panelsBeforeStudio();const plot=workspacePage==='plot',title=plot?'圖表設定':'資料下載';stylePanel.querySelector('h2').textContent=title;stylePanel.setAttribute('aria-label',title);styleButton.textContent=plot?'外觀與圖例':'下載結果';if(plot){if(styleButton.parentElement!==chartActions)chartActions.prepend(styleButton)}else if(styleButton.parentElement!==document.body)document.body.appendChild(styleButton);exportSection.querySelector('summary').firstChild.textContent=plot?'更多下載與設定檔':'下載結果';stylePanel.querySelector('.studio-intro').hidden=!plot;$('styleFeedback').hidden=!plot;exportActions.hidden=!plot;dataActions.hidden=plot;exportHint.textContent=plot?'圖片品質、全部圖表與設定檔':'依目前分頁下載查詢或檢查結果'};
 
 const studioLabels={chartTitle:'圖表標題',chartSubtitle:'副標題（選填）',fontSize:'圖表文字大小（px）',lineWidth:'線條粗細（px）',rainColor:'降水量',showLegend:'顯示圖例',pickPoints:'點選資料點標註',showMax:'標註最高值',showMin:'標註最低值',showValues:'自動挑選數值標註',labelDecimals:'數值小數位數',labelLimit:'自動標註／標記點上限（每條線）',showPoints:'顯示標記點',pointStyle:'標記點形狀',pointSize:'標記點大小（px）',referenceMetric:'參考線指標',referenceValue:'參考線數值',shadeShort:'短暫超標',shadeLong:'持續超標',xAxisTitle:'橫軸標題（留白則自動）',rainAxisTitle:'降水量縱軸',beginZero:'縱軸由 0 開始',showGrid:'顯示格線',exportWidth:'圖片寬度（px）',includeNotes:'圖片附上分析條件'};
 for(const [id,text]of Object.entries(studioLabels))studioLabel(id,text);
@@ -112,6 +124,15 @@ for(const k of keys){studioLabel('axisMin-'+k,'最小值');studioLabel('axisMax-
 $('peerFile').closest('.file-button').setAttribute('aria-label','選擇他人的蜂箱資料');
 stylePanel.setAttribute('aria-label','外觀、標註與下載');
 stylePanel.querySelector('.style-header').after(Object.assign(document.createElement('p'),{className:'studio-intro',textContent:'外觀即時套用；原始資料不變。'}));
+const styleFeedback=document.createElement('div');styleFeedback.id='styleFeedback';styleFeedback.className='studio-feedback';
+const styleStatus=document.createElement('p');styleStatus.id='styleStatus';styleStatus.setAttribute('role','status');styleStatus.setAttribute('aria-live','polite');styleStatus.textContent='修改後會自動更新圖表，也可按「套用外觀」。';
+$('applyFormat').hidden=false;$('applyFormat').textContent='套用外觀';$('applyFormat').onclick=flushFormatPreview;
+styleFeedback.append(styleStatus,$('applyFormat'));stylePanel.querySelector('.studio-intro').after(styleFeedback);
+const panelQuickDownloads=document.createElement('div');panelQuickDownloads.className='studio-quick-downloads';
+for(const [id,target,text]of [['panelDownloadCurrent','downloadCurrentPng','下載目前 PNG'],['panelDownloadCsv','downloadCsv','下載資料 CSV']]){const button=document.createElement('button');button.id=id;button.type='button';button.className='secondary';button.textContent=text;button.onclick=()=>$(target).click();panelQuickDownloads.appendChild(button)}
+styleFeedback.appendChild(panelQuickDownloads);
+for(const id of [...formatIds,...keys.map(k=>'peerName-'+k),'rainColor','rainAxisTitle','shadeShort','shadeLong']){$(id).oninput=queueFormatPreview;$(id).onchange=flushFormatPreview}
+for(const id of ['xTickInterval','xTickCount','xTickUnit']){$(id).oninput=e=>{syncTickControls();queueFormatPreview(e)};$(id).onchange=()=>{syncTickControls();flushFormatPreview()}}
 document.addEventListener('change',e=>{if(stylePanel.contains(e.target))syncStudio()});
 document.addEventListener('input',e=>{if(stylePanel.contains(e.target)&&e.target.type==='color')syncStudioColors()});
 const resetBeforeStudio=applyDefaultFormat;applyDefaultFormat=function(){resetBeforeStudio();syncStudio()};

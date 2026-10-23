@@ -18,7 +18,33 @@ const overlay=$('overlayMetric').closest('label');overlay.firstChild.textContent
 function explain(){const mode=value('chartMode');overlay.hidden=mode!=='overlay';modeInfo.textContent=modeDescriptions[mode];$('aggregation').disabled=mode==='co2hour';$('filterExample').textContent=mode==='co2hour'?'24 小時 CO₂ 圖固定使用「挑出原始紀錄，再平均」，不使用時段平均的篩選方式。':stage()==='raw'?'例如：同一小時有 1000、3000 ppm，條件 > 2500。先保留 3000，再平均，結果為 3000。適合研究「超標紀錄」。':'例如：同一小時有 1000、3000 ppm，先平均為 2000。條件 > 2500，因此整個小時不顯示。適合研究「平均超標的時段」。'}
 const priorRender=render;render=function(){priorRender();explain()};$('renderButton').onclick=render;
 const formatIds=[...Object.keys(formatDefaults),...keys.flatMap(k=>['axisMin-'+k,'axisMax-'+k,'axisStep-'+k,'innerName-'+k,'outerName-'+k])];
-for(const id of formatIds)$(id).onchange=()=>{const needsCalculation=state.dirty;markDirty();try{validateSettings();if(state.output.length){if(needsCalculation){render()}else{draw();state.dirty=false;$('analysisStatus').textContent='圖表外觀已更新。'}}}catch(e){$('analysisStatus').textContent=e.message}};
+let formatPreviewTimer=null,appliedFormatSignature='';
+function formatPreviewSignature(){return JSON.stringify(snapshotSettings())}
+function formatPreviewStatus(message,error=false){
+ const status=$('styleStatus');if(status){status.textContent=message;status.classList.toggle('has-error',error)}
+ $('analysisStatus').textContent=message;
+}
+function flushFormatPreview(){
+ clearTimeout(formatPreviewTimer);formatPreviewTimer=null;
+ try{
+  validateSettings();
+  const signature=formatPreviewSignature();
+  if(signature===appliedFormatSignature){if($('styleStatus')?.classList.contains('has-error'))formatPreviewStatus('外觀已套用，下載圖片會使用目前設定。');return true}
+  if(state.output.length){
+   if(state.dirty)render();else draw();
+   if(state.dirty)return false;
+   appliedFormatSignature=formatPreviewSignature();
+   formatPreviewStatus('外觀已套用，下載圖片會使用目前設定。');
+  }
+  return true;
+ }catch(e){formatPreviewStatus(e.message,true);return false}
+}
+function queueFormatPreview(event){
+ if(event?.isComposing)return;
+ clearTimeout(formatPreviewTimer);
+ formatPreviewTimer=setTimeout(flushFormatPreview,160);
+}
+for(const id of formatIds){$(id).oninput=queueFormatPreview;$(id).onchange=flushFormatPreview}
 for(const id of ['chartMode','overlayMetric','aggregation','filterStage']){const before=$(id).onchange;$(id).onchange=()=>{before?.();explain()}}
 const clear=document.createElement('button');clear.className='secondary';clear.textContent='清除手動標示';clear.onclick=()=>{manualLabels.clear();[...state.charts,...(state.co2Chart?[state.co2Chart]:[])].forEach(refreshPointLabels)};$('quickLabels').appendChild(clear);
 for(const id of ['hiveFile','weatherFile'])$(id).addEventListener('change',()=>manualLabels.clear());

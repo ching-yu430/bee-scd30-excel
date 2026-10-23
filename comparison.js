@@ -54,7 +54,7 @@ drawDifference=function(){
  for(const key of keys){const sets=activePlotSources().filter(s=>s!=='hive').map(source=>{
  const rows=state.differences.filter(r=>r.key===key&&r.source===source),data=[],step=effectiveMode()==='day'?86400000:3600000;
  rows.forEach((r,i)=>{if(i&&r.time-rows[i-1].time>step*1.8)data.push({x:rows[i-1].time+step,y:null});data.push({x:r.time,y:r.value})});
- return {...sourceSeries(source,key,data),label:'我的蜂箱 − '+sourceName(source)};
+ return {...sourceSeries(source,key,data),label:seriesName('hive',key)+' − '+seriesName(source,key)};
  }).filter(s=>s.data.length);if(sets.length)insertChart('diff-'+key,label(key)+'差值',sets,{x:xScale(),[key]:{title:{display:true,text:label(key)+'差值（'+(key==='humidity'?'百分點':units[key])+'）'}}})}
 };
 const csvBeforeComparison=currentCsv;
@@ -73,7 +73,7 @@ document.querySelector('#controlsCard > .section-heading').after(comparisonPanel
 $('peerFile').onchange=e=>e.target.files.length&&load(e.target.files,'peer');
 for(const id of ['querySource','anomalySource','filterSource']){const select=$(id);if(!select)continue;const current=select.value;select.replaceChildren();for(const [s,text]of [['both','全部已載入來源'],...sourceIds.map(s=>[s,sourceName(s)])]){const o=document.createElement('option');o.value=s;o.textContent=text;select.appendChild(o)}select.value=current}
 const overlaySourceField=document.createElement('label');overlaySourceField.className='overlay-setting';overlaySourceField.innerHTML='每日疊圖來源<select id="overlaySource"><option value="hive">我的蜂箱</option><option value="peer">他人的蜂箱</option></select>';$('overlayMetric').closest('label').after(overlaySourceField);
-for(const key of keys){const own=$('innerName-'+key),ext=$('outerName-'+key);own.value='我的蜂箱 '+label(key);ext.value='外部氣象站 '+label(key);own.parentElement.firstChild.textContent='我的蜂箱序列名稱';ext.parentElement.firstChild.textContent='氣象站序列名稱';const field=document.createElement('label');field.innerHTML='他人的蜂箱序列名稱<input id="peerName-'+key+'" maxlength="60" value="他人的蜂箱 '+label(key)+'">';own.closest('.axis-group').appendChild(field);$('peerName-'+key).onchange=()=>{markDirty();applyFormat()}}
+for(const key of keys){const own=$('innerName-'+key),ext=$('outerName-'+key);own.value='我的蜂箱 '+label(key);ext.value='外部氣象站 '+label(key);own.parentElement.firstChild.textContent='我的蜂箱序列名稱';ext.parentElement.firstChild.textContent='氣象站序列名稱';const field=document.createElement('label');field.innerHTML='他人的蜂箱序列名稱<input id="peerName-'+key+'" maxlength="60" value="他人的蜂箱 '+label(key)+'">';own.closest('.axis-group').appendChild(field);$('peerName-'+key).oninput=queueFormatPreview;$('peerName-'+key).onchange=flushFormatPreview}
 settingIds.push('comparisonMode','overlaySource',...keys.map(k=>'peerName-'+k));
 function syncComparison(){
  const requested=requestedSources(),available=activePlotSources(),missing=requested.filter(s=>!state[s]);

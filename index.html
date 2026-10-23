@@ -260,6 +260,29 @@ body[data-workspace-page="query"] main,body[data-workspace-page="anomaly"] main{
 @media(max-width:600px){body[data-workspace-page="query"] main,body[data-workspace-page="anomaly"] main{padding-right:48px}.query-actions{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}.query-actions button{width:100%}.anomaly-panel .section-heading button{width:100%}}
 @media(max-width:600px){#stylePanel{padding:16px}#stylePanel .style-header{top:-16px}#stylePanel .studio-block{padding:20px 16px}#stylePanel .studio-group>summary{padding:16px 38px 16px 16px}#stylePanel .studio-group>summary::after{top:16px}#stylePanel .bounds{gap:8px}}
 
+/* Common actions stay with the selected chart; detailed settings stay nearby. */
+body[data-workspace-page="plot"] #openStyle{position:static;width:auto;min-height:44px;padding:10px 14px;writing-mode:horizontal-tb;letter-spacing:normal;box-shadow:none;border:1px solid var(--green);border-radius:8px}
+body[data-stage="3"][data-workspace-page="plot"] main{padding-right:24px}
+.chart-heading .chart-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.chart-actions #downloadCurrentPng{background:var(--green);color:#fff;border-color:var(--green)}
+.chart-heading .chart-picker{flex:1 1 100%;max-width:100%;margin:6px 0 0}
+.studio-feedback{display:flex;align-items:center;gap:12px;margin:0 0 16px;padding:12px;background:#edf3ef;border-radius:8px}
+.studio-feedback p{flex:1;margin:0;font-size:12px;color:var(--green);line-height:1.65}
+.studio-feedback .has-error{color:#9c3027}
+.studio-feedback button{flex:0 0 auto;padding:8px 12px}
+.studio-feedback{flex-wrap:wrap}
+.studio-quick-downloads{flex:1 1 100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#stylePanel #studioAppearance>.studio-block:first-of-type{border-top:0}
+#stylePanel .studio-block .studio-block{padding:14px 0 0}
+#stylePanel .tick-settings{margin:0;padding:0;background:transparent;border:0;display:grid;grid-template-columns:minmax(0,1fr)}
+@media(max-width:600px){
+ body[data-stage="3"][data-workspace-page="plot"] main{padding-right:16px}
+ .chart-heading .chart-actions{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .chart-actions #downloadCsv{grid-column:1/-1}
+ .chart-actions button{width:100%;min-width:0}
+ .chart-heading .chart-picker{display:block;width:100%}
+ #stylePanel{width:min(420px,100vw)}
+}
 </style>
 <!-- END BUNDLED SITE STYLES -->
     
@@ -344,11 +367,11 @@ body[data-workspace-page="query"] main,body[data-workspace-page="anomaly"] main{
     <footer>蜂箱環境資料分析台 · 正在確認網站版本</footer>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="app.js?v=22"></script>
+    <script src="app.js?v=22.2"></script>
     <script src="points.js?v=22"></script>
-    <script src="research.js?v=22.1"></script>
+    <script src="research.js?v=22.2"></script>
     <script src="time-axis.js?v=22"></script>
-    <script src="workspace.js?v=22"></script>
+    <script src="workspace.js?v=22.2"></script>
     <script src="layout.js?v=22"></script>
     <script src="query.js?v=22"></script>
     <script src="query-ui.js?v=22"></script>
@@ -361,8 +384,8 @@ body[data-workspace-page="query"] main,body[data-workspace-page="anomaly"] main{
     <script src="workflow.js?v=22"></script>
     <script src="panel-polish.js?v=22"></script>
     <script src="hive-import.js?v=22"></script>
-    <script src="comparison.js?v=22"></script>
-    <script src="studio.js?v=22.1"></script>
+    <script src="comparison.js?v=22.2"></script>
+    <script src="studio.js?v=22.2"></script>
     <script src="asset-check.js?v=22"></script>
     <script>
       // Independent guard: an old asset-check.js must not silently accept mixed releases.
