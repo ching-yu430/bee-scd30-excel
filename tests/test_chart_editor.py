@@ -44,7 +44,7 @@ class ChartEditorTests(unittest.TestCase):
         cls.server.server_close()
         cls.thread.join()
 
-    def setUp(self):
+    def open_home(self):
         self.page = self.browser.new_page(timezone_id='Asia/Taipei', viewport={'width': 1440, 'height': 1000})
         self.page.set_default_timeout(7000)
         self.errors = []
@@ -60,6 +60,10 @@ class ChartEditorTests(unittest.TestCase):
         self.page.goto(f'http://127.0.0.1:{self.server.server_port}/', wait_until='networkidle')
         self.assertEqual(self.page.evaluate('missingWebsiteParts'), [])
         self.assertIn('v23', self.page.locator('footer').inner_text())
+
+    def setUp(self):
+        self.open_home()
+        self.page.locator('#chooseComparisonMode').click()
         self.page.locator('#experimentPurpose').select_option('parallel')
         for source, delta in [('hive', 0), ('peer', 1), ('weather', 2)]:
             csv = ('timestamp,temperature,humidity,co2,precipitation\n'
@@ -83,7 +87,7 @@ class ChartEditorTests(unittest.TestCase):
             self.page.close()
 
     def expose(self, selector):
-        self.page.locator(selector).evaluate("el => {for(let p=el.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true}")
+        self.page.locator(selector).evaluate("el => {const pane=el.closest('[role=tabpanel]');if(pane?.getAttribute('aria-labelledby')?.startsWith('settingsTab-'))document.getElementById(pane.getAttribute('aria-labelledby')).click();for(let p=el.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true}")
         return self.page.locator(selector)
 
     def fill_live(self, selector, value, condition):
@@ -156,11 +160,18 @@ class ChartEditorTests(unittest.TestCase):
         self.expose('#chartMode').select_option('difference')
         self.page.locator('#sourceNext').click()
         self.page.wait_for_function("state.charts[0].data.datasets[0].label==='實驗溫度 − 對照溫度'")
+        self.page.locator('#openStyle').click()
+        self.fill_live('#innerName-temp', '差值圖改名', "state.charts[0].data.datasets[0].label==='差值圖改名 − 對照溫度'")
+        self.assertTrue(self.page.locator('#peerName-temp').is_visible())
+        self.page.locator('#closeStyle').click()
         self.page.locator('[data-step="2"]').click()
         self.expose('#chartMode').select_option('overlay')
         self.page.locator('#overlayMetric').select_option('temp')
         self.page.locator('#sourceNext').click()
-        self.page.wait_for_function("state.charts[0].data.datasets[0].label==='實驗溫度 · 2026-07-01'")
+        self.page.wait_for_function("state.charts[0].data.datasets[0].label==='差值圖改名 · 2026-07-01'")
+        self.page.locator('#openStyle').click()
+        self.fill_live('#innerName-temp', '每日疊圖改名', "state.charts[0].data.datasets[0].label==='每日疊圖改名 · 2026-07-01'")
+        self.assertFalse(self.page.locator('#peerName-temp').is_visible())
 
     def test_pending_edits_are_included_in_download(self):
         self.expose('#innerName-temp').fill('立刻匯出的圖例')

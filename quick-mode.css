@@ -1,0 +1,22 @@
+.home-modes{margin-top:18px;background:#f8faf7;padding:24px}
+.home-mode-heading{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:18px}.home-mode-heading h2{font-size:23px;margin:0}.home-mode-heading p{color:var(--muted);margin:0;font-size:13px}
+.home-mode-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.home-mode-options>button{display:flex;flex-direction:column;align-items:flex-start;gap:9px;padding:20px;text-align:left;border:1px solid #c7d5ca;border-radius:12px;background:white;font-weight:400;color:var(--ink)}
+.home-mode-options>button[aria-pressed=true]{border:2px solid var(--green);padding:19px;background:#eef5ee;box-shadow:0 0 0 2px #2b62520a}
+.home-mode-options strong{font-size:20px}.home-mode-options span:not(.mode-tag){font-size:14px}.home-mode-options small{font-size:12px;color:var(--muted)}
+.mode-tag{font-size:11px;letter-spacing:.03em;padding:2px 8px;border-radius:20px;background:#e5ede5;color:#3f654d}
+#workspaceModeBar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 18px;padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:#f8faf7;font-size:13px;color:var(--green)}
+#workspaceModeBar button{font-size:12px;padding:8px 10px;min-height:36px}
+.quick-guide{font-size:14px;color:var(--muted);margin:20px 0 4px}
+#quickPeriod{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:16px 0}
+#quickPeriod>summary{font-size:13px;cursor:pointer;color:var(--green);font-weight:600}
+#quickPeriod .period-panel{grid-template-columns:repeat(2,minmax(0,1fr))}
+#quickPeriod .period-panel input{min-width:0}
+#quickRange{padding:8px 0;margin:8px 0}
+body[data-mode=quick] .upload-grid,body[data-mode=quick] .experiment-context{grid-template-columns:minmax(0,1fr)}
+body[data-mode=quick] .experiment-card{max-width:760px;width:100%}
+body[data-mode=quick] .experiment-weather-toggle,body[data-mode=quick] .experiment-badge,body[data-mode=quick] #advancedComparison,body[data-mode=quick] #controlsCard>.range-shortcuts,body[data-mode=quick] #controlsCard>.controls-grid,body[data-mode=quick] #experimentAnomalies{display:none}
+body[data-mode=quick] .experiment-card-heading label{font-size:0}
+body[data-mode=quick] .experiment-card-heading label::before{content:'資料名稱（選填）';font-size:14px}
+body[data-mode=quick] .experiment-card-heading input{font-size:14px}
+@media(max-width:600px){.home-modes{padding:18px}.home-mode-heading{gap:6px}.home-mode-options{grid-template-columns:minmax(0,1fr);gap:12px}.home-mode-options>button{padding:16px;gap:6px}.home-mode-options>button[aria-pressed=true]{padding:15px}.home-mode-options strong{font-size:18px}.home-mode-options span:not(.mode-tag){font-size:13px}#workspaceModeBar{align-items:flex-start;padding:12px}#workspaceModeBar button{max-width:140px}#quickPeriod .period-panel{grid-template-columns:minmax(0,1fr)}}

@@ -208,7 +208,7 @@ input[type=color]{min-width:46px;width:46px;height:36px;padding:3px;border:1px s
 @media(prefers-reduced-motion:reduce){button,.file-button{transition:none}}
 
 /* v22: explicit spacing and identical, resilient palette controls. */
-:root{--bee-studio-version:23;--paper:#f3f5f4;--ink:#203b36;--muted:#63756e}
+:root{--bee-studio-version:23.1;--paper:#f3f5f4;--ink:#203b36;--muted:#63756e}
 .release-warning{padding:18px;margin:16px 0;border:2px solid #ae5943;border-radius:10px;background:#fff4ec;color:#783822;line-height:1.8}
 #stylePanel{background:#f4f6f4;padding:20px;scroll-padding-top:88px}
 #stylePanel .style-header{background:#f4f6f4;padding:12px 0 18px;margin-bottom:16px;top:-20px}
@@ -313,6 +313,71 @@ body[data-stage="3"][data-workspace-page="plot"] main{padding-right:24px}
 .rain-series-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
 @media(max-width:900px){.purpose-panel{grid-template-columns:minmax(0,1fr)}.purpose-panel #purposeHint{grid-column:auto}.experiment-period-fields{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:600px){.upload-grid,.experiment-ranges,.experiment-context{grid-template-columns:minmax(0,1fr)}.experiment-card{padding:18px}.purpose-panel{padding:18px;gap:16px}.purpose-panel h2{font-size:22px}.overview-controls{grid-template-columns:repeat(2,minmax(0,1fr));padding:14px;gap:12px}.overview-controls label{font-size:12px}.overview-controls select{font-size:13px;padding:9px}.experiment-anomalies .section-heading{display:block}.experiment-anomalies .section-heading button{margin-top:12px;width:100%}}
+
+
+/* SOURCE: settings-tabs.css */
+/* The panel itself stays still; only the selected category scrolls. */
+#stylePanel{display:flex;flex-direction:column;gap:0;width:460px;padding:0;overflow:hidden;scrollbar-gutter:auto;bottom:76px}
+.style-open main,.style-open .topbar{margin-right:460px}
+#stylePanel .style-header{position:static;flex:0 0 auto;margin:0;padding:16px 18px 8px;border:0}
+#settingsChartContext{flex:0 0 auto;font-size:12px;line-height:1.5;color:var(--muted);margin:0;padding:0 18px 12px;max-height:54px;overflow:auto;overflow-wrap:anywhere}
+#settingsTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;flex:0 0 auto;padding:0 12px 12px;border-bottom:1px solid var(--line)}
+#settingsTabs button{font-size:13px;padding:9px 3px;min-width:0;background:transparent;border-color:transparent;font-weight:500}
+#settingsTabs button[aria-selected=true]{background:#e4eee7;border-color:#95b09e;color:#214f3e;font-weight:700}
+#settingsScroll{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 16px;scrollbar-gutter:stable}
+#settingsScroll .studio-group{border:0;box-shadow:none;margin:0;border-radius:10px;overflow:visible}
+#settingsScroll .studio-group>summary[hidden]{display:none}
+#settingsScroll .studio-block{padding:16px;gap:12px;display:flex;flex-direction:column}
+#settingsScroll .studio-block .studio-block{padding:8px 0 0;gap:8px}
+#settingsScroll .studio-intro{display:none}
+#settingsScroll input,#settingsScroll select{max-width:100%}
+#settingsScroll .settings-field-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.settings-field-row label{margin:0;min-width:0}
+#settingsScroll .settings-legend-row{display:grid;grid-template-columns:32px minmax(65px,.7fr) minmax(0,1fr);align-items:center;gap:8px;padding:0;border:0;background:transparent}
+#settingsScroll .settings-legend-row input{margin:0;width:100%;min-width:0}
+.settings-source-stroke{width:32px;height:10px}
+#settingsScroll .settings-legend-row .field-caption{font-size:12px;overflow-wrap:anywhere}
+#settingsScroll .metric-controls{gap:6px}
+#settingsScroll label.studio-color-field{background:transparent;border:0;border-bottom:1px solid #e5ebe7;border-radius:0;padding:6px 0;gap:10px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;min-height:40px}
+#settingsScroll .studio-color-field .color-copy{display:flex;flex-direction:row;align-items:center;gap:8px;flex:1}
+#settingsScroll .studio-color-field .color-code{font-size:11px;margin:0}
+#settingsScroll label.studio-color-field input[type=color]{flex:0 0 36px;width:36px!important;min-width:36px;max-width:36px;height:30px!important;min-height:30px;padding:2px;margin:0}
+#settingsScroll .settings-manual{border:1px solid var(--line);border-radius:8px;padding:10px;margin:0;background:#f7faf6}
+.settings-manual>summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--green)}
+#settingsScroll .point-editor>summary{display:none}
+#settingsScroll .point-editor{margin-top:12px;padding:0;border:0;background:transparent}
+#stylePanel .studio-feedback{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;flex:0 0 auto;margin:0;padding:10px 18px 14px;border-top:1px solid var(--line);border-radius:0;background:#f4f7f3;box-shadow:0 -4px 12px #203d3508}
+#styleFeedback>p{grid-column:1/-1;font-size:12px;line-height:1.5;max-height:72px;overflow:auto}
+#styleFeedback .studio-quick-downloads{display:contents}
+#styleFeedback button{min-width:0;width:100%;padding:10px 6px}
+#panelDownloadCurrent{background:var(--green);border-color:var(--green);color:white}
+@media(max-width:900px){.style-open main,.style-open .topbar{margin-right:0}#stylePanel{bottom:0}}
+@media(max-width:600px){#stylePanel{width:min(460px,100vw)}#settingsScroll{padding:12px}#settingsScroll .settings-field-row{grid-template-columns:minmax(0,1fr)}#settingsScroll .studio-block{padding:14px}#stylePanel .style-header{padding:12px 16px 8px}#settingsTabs{padding-bottom:8px}#stylePanel .studio-feedback{padding:10px 14px max(12px,env(safe-area-inset-bottom))}}
+
+
+/* SOURCE: quick-mode.css */
+.home-modes{margin-top:18px;background:#f8faf7;padding:24px}
+.home-mode-heading{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:18px}.home-mode-heading h2{font-size:23px;margin:0}.home-mode-heading p{color:var(--muted);margin:0;font-size:13px}
+.home-mode-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.home-mode-options>button{display:flex;flex-direction:column;align-items:flex-start;gap:9px;padding:20px;text-align:left;border:1px solid #c7d5ca;border-radius:12px;background:white;font-weight:400;color:var(--ink)}
+.home-mode-options>button[aria-pressed=true]{border:2px solid var(--green);padding:19px;background:#eef5ee;box-shadow:0 0 0 2px #2b62520a}
+.home-mode-options strong{font-size:20px}.home-mode-options span:not(.mode-tag){font-size:14px}.home-mode-options small{font-size:12px;color:var(--muted)}
+.mode-tag{font-size:11px;letter-spacing:.03em;padding:2px 8px;border-radius:20px;background:#e5ede5;color:#3f654d}
+#workspaceModeBar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0 18px;padding:12px 16px;border:1px solid var(--line);border-radius:10px;background:#f8faf7;font-size:13px;color:var(--green)}
+#workspaceModeBar button{font-size:12px;padding:8px 10px;min-height:36px}
+.quick-guide{font-size:14px;color:var(--muted);margin:20px 0 4px}
+#quickPeriod{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:16px 0}
+#quickPeriod>summary{font-size:13px;cursor:pointer;color:var(--green);font-weight:600}
+#quickPeriod .period-panel{grid-template-columns:repeat(2,minmax(0,1fr))}
+#quickPeriod .period-panel input{min-width:0}
+#quickRange{padding:8px 0;margin:8px 0}
+body[data-mode=quick] .upload-grid,body[data-mode=quick] .experiment-context{grid-template-columns:minmax(0,1fr)}
+body[data-mode=quick] .experiment-card{max-width:760px;width:100%}
+body[data-mode=quick] .experiment-weather-toggle,body[data-mode=quick] .experiment-badge,body[data-mode=quick] #advancedComparison,body[data-mode=quick] #controlsCard>.range-shortcuts,body[data-mode=quick] #controlsCard>.controls-grid,body[data-mode=quick] #experimentAnomalies{display:none}
+body[data-mode=quick] .experiment-card-heading label{font-size:0}
+body[data-mode=quick] .experiment-card-heading label::before{content:'資料名稱（選填）';font-size:14px}
+body[data-mode=quick] .experiment-card-heading input{font-size:14px}
+@media(max-width:600px){.home-modes{padding:18px}.home-mode-heading{gap:6px}.home-mode-options{grid-template-columns:minmax(0,1fr);gap:12px}.home-mode-options>button{padding:16px;gap:6px}.home-mode-options>button[aria-pressed=true]{padding:15px}.home-mode-options strong{font-size:18px}.home-mode-options span:not(.mode-tag){font-size:13px}#workspaceModeBar{align-items:flex-start;padding:12px}#workspaceModeBar button{max-width:140px}#quickPeriod .period-panel{grid-template-columns:minmax(0,1fr)}}
 </style>
 <!-- END BUNDLED SITE STYLES -->
     
@@ -397,33 +462,35 @@ body[data-stage="3"][data-workspace-page="plot"] main{padding-right:24px}
     <footer>蜂箱環境資料分析台 · 正在確認網站版本</footer>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="app.js?v=23"></script>
-    <script src="experiment-model.js?v=23"></script>
-    <script src="points.js?v=23"></script>
-    <script src="research.js?v=23"></script>
-    <script src="time-axis.js?v=23"></script>
-    <script src="workspace.js?v=23"></script>
-    <script src="layout.js?v=23"></script>
-    <script src="query.js?v=23"></script>
-    <script src="query-ui.js?v=23"></script>
-    <script src="ease.js?v=23"></script>
-    <script src="tick-controls.js?v=23"></script>
-    <script src="exceedance.js?v=23"></script>
-    <script src="query-actions.js?v=23"></script>
-    <script src="rainfall.js?v=23"></script>
-    <script src="anomalies.js?v=23"></script>
-    <script src="workflow.js?v=23"></script>
-    <script src="panel-polish.js?v=23"></script>
-    <script src="hive-import.js?v=23"></script>
-    <script src="comparison.js?v=23"></script>
-    <script src="studio.js?v=23"></script>
-    <script src="experiments.js?v=23"></script>
-    <script src="asset-check.js?v=23"></script>
+    <script src="app.js?v=23.1"></script>
+    <script src="experiment-model.js?v=23.1"></script>
+    <script src="points.js?v=23.1"></script>
+    <script src="research.js?v=23.1"></script>
+    <script src="time-axis.js?v=23.1"></script>
+    <script src="workspace.js?v=23.1"></script>
+    <script src="layout.js?v=23.1"></script>
+    <script src="query.js?v=23.1"></script>
+    <script src="query-ui.js?v=23.1"></script>
+    <script src="ease.js?v=23.1"></script>
+    <script src="tick-controls.js?v=23.1"></script>
+    <script src="exceedance.js?v=23.1"></script>
+    <script src="query-actions.js?v=23.1"></script>
+    <script src="rainfall.js?v=23.1"></script>
+    <script src="anomalies.js?v=23.1"></script>
+    <script src="workflow.js?v=23.1"></script>
+    <script src="panel-polish.js?v=23.1"></script>
+    <script src="hive-import.js?v=23.1"></script>
+    <script src="comparison.js?v=23.1"></script>
+    <script src="studio.js?v=23.1"></script>
+    <script src="experiments.js?v=23.1"></script>
+    <script src="settings-tabs.js?v=23.1"></script>
+    <script src="quick-mode.js?v=23.1"></script>
+    <script src="asset-check.js?v=23.1"></script>
     <script>
       // Independent guard: an old asset-check.js must not silently accept mixed releases.
-      if(document.documentElement.dataset.uiRelease!=='23' && !document.querySelector('[role="alert"]')){
+      if(document.documentElement.dataset.uiRelease!=='23.1' && !document.querySelector('[role="alert"]')){
         const warning=document.createElement('div');warning.setAttribute('role','alert');warning.className='release-warning';
-        warning.textContent='網站檔案版本不一致，部分功能可能無法使用。請完整更新 v23 檔案，再重新整理。';
+        warning.textContent='網站檔案版本不一致，部分功能可能無法使用。請完整更新 v23.1 檔案，再重新整理。';
         document.querySelector('main').prepend(warning);
       }
     </script>

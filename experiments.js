@@ -1,5 +1,5 @@
 /* A shared workspace for station, simultaneous and repeated experiments. */
-const purposeTitles={weather:'實驗與氣象站比較',parallel:'同時進行的實驗比較',different:'不同次實驗比較'};
+const purposeTitles={single:'單一資料圖表',weather:'實驗與氣象站比較',parallel:'同時進行的實驗比較',different:'不同次實驗比較'};
 const experimentRangeReferences=new Map();
 const purposePanel=document.createElement('section');purposePanel.className='card purpose-panel';
 purposePanel.innerHTML='<div><p class="eyebrow">EXPERIMENT WORKSPACE</p><h2>先看整體，再查看異常</h2><p>每組實驗分開讀取檔案，使用自己的名稱與分析期間。</p></div><label>這次要比較什麼？<select id="experimentPurpose"><option value="different">不同次實驗比較</option><option value="parallel">同時進行的實驗比較</option><option value="weather">實驗與氣象站比較</option></select></label><p id="purposeHint" class="help-text"></p>';

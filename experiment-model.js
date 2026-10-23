@@ -38,6 +38,7 @@ function diurnalMean(bin){
 function experimentCalculationSignature(){return [comparisonPurpose(),...experimentSources.map(source=>{const range=analysisRangeFor(source);return [range.start,range.end]})]}
 requestedSources=function(){
  if(state.experimentDetail)return [state.experimentDetail.source];
+ if(comparisonPurpose()==='single')return ['hive'];
  const mode=value('comparisonMode','hives');
  const selected=({mine:['hive'],peerOnly:['peer'],weather:['hive','weather'],hives:['hive','peer'],all:sourceIds,stationB:['weatherPeer']})[mode]||['hive','peer'];
  return selected.filter(source=>!weatherSources.includes(source)||!$(parentExperiment(source)+'UseWeather')||checked(parentExperiment(source)+'UseWeather'));

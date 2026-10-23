@@ -12,6 +12,7 @@ class ExperimentComparisonTests(unittest.TestCase):
     setUpClass = classmethod(editor_tests.ChartEditorTests.setUpClass.__func__)
     tearDownClass = classmethod(editor_tests.ChartEditorTests.tearDownClass.__func__)
     tearDown = editor_tests.ChartEditorTests.tearDown
+    open_home = editor_tests.ChartEditorTests.open_home
     expose = editor_tests.ChartEditorTests.expose
     fill_live = editor_tests.ChartEditorTests.fill_live
 
