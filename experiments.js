@@ -34,9 +34,15 @@ comparisonPanel.before(rangePanel);
 const overviewControls=document.createElement('section');overviewControls.className='overview-controls';overviewControls.id='overviewControls';
 overviewControls.innerHTML='<label>主要檢視<select id="overviewView"><option value="continuous">整體趨勢</option><option value="co2hour">24 小時平均變化</option><option value="advanced" hidden>進階圖表</option></select></label><label>比較指標<select id="overviewMetric"><option value="co2">CO₂</option><option value="temp">溫度</option><option value="humidity">相對濕度</option></select></label><label>時間對齊<select id="timeAlignment"><option value="elapsed">實驗第幾天</option><option value="calendar">實際日期</option></select></label><label>平均方式<select id="profileMethod"><option value="observations">逐筆觀測平均</option><option value="days">每天等權平均</option></select></label>';
 overviewControls.appendChild($('aggregation').closest('label'));rangePanel.after(overviewControls);
+// Hour ordering belongs to the main profile controls in every workspace mode.
+overviewControls.appendChild($('diurnalControl'));
+$('diurnalControl').firstChild.textContent='起始整點';
+$('diurnalStart').setAttribute('aria-label','24 小時平均圖起始整點');
+const profileHelp=document.createElement('p');profileHelp.id='profileMethodHelp';profileHelp.className='help-text profile-method-help';overviewControls.appendChild(profileHelp);
+$('profileMethod').setAttribute('aria-describedby','profileMethodHelp');$('diurnalStart').setAttribute('aria-describedby','profileMethodHelp');
 const experimentWarnings=document.createElement('p');experimentWarnings.id='experimentWarnings';experimentWarnings.className='help-text experiment-warnings';experimentWarnings.setAttribute('role','status');overviewControls.appendChild(experimentWarnings);
 const advancedComparison=section('進階：其他圖表與資料來源');advancedComparison.id='advancedComparison';
-overviewControls.after(advancedComparison);advancedComparison.append(comparisonPanel,$('chartMode').closest('label'),$('overlayMetric').closest('label'),overlaySourceField,$('diurnalControl'));
+overviewControls.after(advancedComparison);advancedComparison.append(comparisonPanel,$('chartMode').closest('label'),$('overlayMetric').closest('label'),overlaySourceField);
 const rainStationField=document.createElement('label');rainStationField.innerHTML='降水量來源<select id="rainStation"><option value="weather">實驗 A 氣象站</option><option value="weatherPeer">實驗 B 氣象站</option></select>';advancedComparison.appendChild(rainStationField);
 const context=document.createElement('section');context.id='experimentContext';context.className='experiment-context';context.setAttribute('aria-label','目前比較的實驗');document.querySelector('.chart-heading').after(context);
 const coverage=document.createElement('details');coverage.id='profileCoverage';coverage.className='card profile-coverage';coverage.innerHTML='<summary>每小時的有效天數與樣本數</summary><p class="help-text">空白代表沒有有效觀測，不補 0；每天等權平均僅納入該小時有資料的日期。</p><div class="query-table-wrap"><table><thead><tr><th>實驗／來源</th><th>時段</th><th>平均值</th><th>有效天數</th><th>觀測筆數</th></tr></thead><tbody id="profileCoverageRows"></tbody></table></div>';$('co2DailyCard').after(coverage);
@@ -106,6 +112,8 @@ function syncExperimentUI(){
  $('overviewMetric').closest('label').hidden=!['continuous','co2hour'].includes(mode);
  $('timeAlignment').closest('label').hidden=!different||profile||Boolean(state.experimentDetail)||!['continuous','combined'].includes(mode);
  $('profileMethod').closest('label').hidden=!profile;
+ $('diurnalControl').hidden=!profile;profileHelp.hidden=!profile;
+ profileHelp.textContent=(value('profileMethod')==='days'?'先算各日期同一小時的平均，再讓有資料的日期等權平均；缺測日期不補 0。':'每筆有效觀測等權平均；同一小時內，觀測筆數較多的日期影響較大。')+' 起始整點只改變顯示順序，不改變平均值或每日分組。';
  $('aggregation').closest('label').hidden=profile;
  rainStationField.hidden=mode!=='rainfall';
  const difference=$('chartMode').querySelector('option[value="difference"]');difference.disabled=different;
@@ -160,7 +168,12 @@ function requestExperimentOrigins(){
  markDirty();showWorkspaceStage(2,false);workspaceStatus.textContent='請先確認各組實驗的第 1 天，再比較整體趨勢。';return true;
 }
 $('timeAlignment').onchange=()=>{experimentSettingsChanged();if(workspaceStage===3&&!requestExperimentOrigins())render()};
-$('profileMethod').onchange=()=>{queueFormatPreview();flushFormatPreview();syncExperimentUI()};
+function updateProfileOptions(){
+ if(workspacePage==='plot'&&workspaceStage===3)flushFormatPreview();else markDirty();
+ syncExperimentUI();
+}
+$('profileMethod').onchange=updateProfileOptions;
+$('diurnalStart').onchange=updateProfileOptions;
 $('overviewView').onchange=()=>{if(value('overviewView')==='advanced')return;$('chartMode').value=value('overviewView');if(workspaceStage===3&&requestExperimentOrigins())return;$('chartMode').onchange?.();syncExperimentUI()};
 $('overviewMetric').onchange=()=>{if(value('chartMode')==='co2hour'&&state.output.length)draw();else syncChartPicker();syncExperimentUI()};
 $('rainStation').onchange=()=>{markDirty();applyFormat()};

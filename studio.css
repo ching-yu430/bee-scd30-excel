@@ -41,7 +41,7 @@ input[type=color]{min-width:46px;width:46px;height:36px;padding:3px;border:1px s
 @media(prefers-reduced-motion:reduce){button,.file-button{transition:none}}
 
 /* v22: explicit spacing and identical, resilient palette controls. */
-:root{--bee-studio-version:23.1;--paper:#f3f5f4;--ink:#203b36;--muted:#63756e}
+:root{--bee-studio-version:23.2;--paper:#f3f5f4;--ink:#203b36;--muted:#63756e}
 .release-warning{padding:18px;margin:16px 0;border:2px solid #ae5943;border-radius:10px;background:#fff4ec;color:#783822;line-height:1.8}
 #stylePanel{background:#f4f6f4;padding:20px;scroll-padding-top:88px}
 #stylePanel .style-header{background:#f4f6f4;padding:12px 0 18px;margin-bottom:16px;top:-20px}

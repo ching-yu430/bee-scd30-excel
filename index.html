@@ -208,7 +208,7 @@ input[type=color]{min-width:46px;width:46px;height:36px;padding:3px;border:1px s
 @media(prefers-reduced-motion:reduce){button,.file-button{transition:none}}
 
 /* v22: explicit spacing and identical, resilient palette controls. */
-:root{--bee-studio-version:23.1;--paper:#f3f5f4;--ink:#203b36;--muted:#63756e}
+:root{--bee-studio-version:23.2;--paper:#f3f5f4;--ink:#203b36;--muted:#63756e}
 .release-warning{padding:18px;margin:16px 0;border:2px solid #ae5943;border-radius:10px;background:#fff4ec;color:#783822;line-height:1.8}
 #stylePanel{background:#f4f6f4;padding:20px;scroll-padding-top:88px}
 #stylePanel .style-header{background:#f4f6f4;padding:12px 0 18px;margin-bottom:16px;top:-20px}
@@ -305,7 +305,9 @@ body[data-stage="3"][data-workspace-page="plot"] main{padding-right:24px}
 .experiment-origin{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:14px;margin:14px 0}.experiment-origin .check-tile{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line)}.experiment-origin input[type=checkbox]{width:20px;margin:0}.experiment-origin p{margin:0}
 .overview-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;align-items:end;background:#edf3ef;border:1px solid #d5e2d8;border-radius:12px;padding:18px;margin:16px 0}
 .overview-controls label{min-width:0}.overview-controls select{width:100%}
+.overview-controls #diurnalControl{margin:0;max-width:none}
 .experiment-warnings{grid-column:1/-1;margin:0}
+.profile-method-help{grid-column:1/-1;margin:0;padding-top:10px;border-top:1px solid #d5e2d8}
 .experiment-context{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}.experiment-context-card{padding:12px 16px;border-left:4px solid #658b78;background:#f0f4f0;border-radius:8px;display:flex;flex-direction:column;gap:5px;min-width:0}.experiment-context-card:nth-child(2){border-left-color:#8a719b}.experiment-context-card span{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
 #advancedComparison{padding:16px;margin:18px 0;border:1px solid var(--line);border-radius:10px}#advancedComparison>summary{cursor:pointer;font-weight:600}#advancedComparison>label{margin:16px 0}#advancedComparison .comparison-panel{margin-top:16px}
 .profile-coverage{margin-top:16px}.profile-coverage>summary{font-weight:600;cursor:pointer}.profile-coverage table{width:100%;margin-top:14px}.profile-coverage .query-table-wrap{max-height:360px;overflow:auto}
@@ -462,35 +464,35 @@ body[data-mode=quick] .experiment-card-heading input{font-size:14px}
     <footer>蜂箱環境資料分析台 · 正在確認網站版本</footer>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="app.js?v=23.1"></script>
-    <script src="experiment-model.js?v=23.1"></script>
-    <script src="points.js?v=23.1"></script>
-    <script src="research.js?v=23.1"></script>
-    <script src="time-axis.js?v=23.1"></script>
-    <script src="workspace.js?v=23.1"></script>
-    <script src="layout.js?v=23.1"></script>
-    <script src="query.js?v=23.1"></script>
-    <script src="query-ui.js?v=23.1"></script>
-    <script src="ease.js?v=23.1"></script>
-    <script src="tick-controls.js?v=23.1"></script>
-    <script src="exceedance.js?v=23.1"></script>
-    <script src="query-actions.js?v=23.1"></script>
-    <script src="rainfall.js?v=23.1"></script>
-    <script src="anomalies.js?v=23.1"></script>
-    <script src="workflow.js?v=23.1"></script>
-    <script src="panel-polish.js?v=23.1"></script>
-    <script src="hive-import.js?v=23.1"></script>
-    <script src="comparison.js?v=23.1"></script>
-    <script src="studio.js?v=23.1"></script>
-    <script src="experiments.js?v=23.1"></script>
-    <script src="settings-tabs.js?v=23.1"></script>
-    <script src="quick-mode.js?v=23.1"></script>
-    <script src="asset-check.js?v=23.1"></script>
+    <script src="app.js?v=23.2"></script>
+    <script src="experiment-model.js?v=23.2"></script>
+    <script src="points.js?v=23.2"></script>
+    <script src="research.js?v=23.2"></script>
+    <script src="time-axis.js?v=23.2"></script>
+    <script src="workspace.js?v=23.2"></script>
+    <script src="layout.js?v=23.2"></script>
+    <script src="query.js?v=23.2"></script>
+    <script src="query-ui.js?v=23.2"></script>
+    <script src="ease.js?v=23.2"></script>
+    <script src="tick-controls.js?v=23.2"></script>
+    <script src="exceedance.js?v=23.2"></script>
+    <script src="query-actions.js?v=23.2"></script>
+    <script src="rainfall.js?v=23.2"></script>
+    <script src="anomalies.js?v=23.2"></script>
+    <script src="workflow.js?v=23.2"></script>
+    <script src="panel-polish.js?v=23.2"></script>
+    <script src="hive-import.js?v=23.2"></script>
+    <script src="comparison.js?v=23.2"></script>
+    <script src="studio.js?v=23.2"></script>
+    <script src="experiments.js?v=23.2"></script>
+    <script src="settings-tabs.js?v=23.2"></script>
+    <script src="quick-mode.js?v=23.2"></script>
+    <script src="asset-check.js?v=23.2"></script>
     <script>
       // Independent guard: an old asset-check.js must not silently accept mixed releases.
-      if(document.documentElement.dataset.uiRelease!=='23.1' && !document.querySelector('[role="alert"]')){
+      if(document.documentElement.dataset.uiRelease!=='23.2' && !document.querySelector('[role="alert"]')){
         const warning=document.createElement('div');warning.setAttribute('role','alert');warning.className='release-warning';
-        warning.textContent='網站檔案版本不一致，部分功能可能無法使用。請完整更新 v23.1 檔案，再重新整理。';
+        warning.textContent='網站檔案版本不一致，部分功能可能無法使用。請完整更新 v23.2 檔案，再重新整理。';
         document.querySelector('main').prepend(warning);
       }
     </script>
