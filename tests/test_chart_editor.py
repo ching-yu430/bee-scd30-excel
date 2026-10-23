@@ -59,6 +59,7 @@ class ChartEditorTests(unittest.TestCase):
         self.page.route('https://fonts.googleapis.com/**', lambda route: route.abort())
         self.page.goto(f'http://127.0.0.1:{self.server.server_port}/', wait_until='networkidle')
         self.assertEqual(self.page.evaluate('missingWebsiteParts'), [])
+        self.assertIn('v22.3', self.page.locator('footer').inner_text())
         for source, delta in [('hive', 0), ('peer', 1), ('weather', 2)]:
             csv = ('timestamp,temperature,humidity,co2,precipitation\n'
                    f'2026-07-01 08:00:00,{25 + delta},60,1000,1\n'
@@ -166,6 +167,36 @@ class ChartEditorTests(unittest.TestCase):
         self.assertTrue(Path(download.value.path()).stat().st_size > 1000)
         self.assertEqual(self.page.evaluate('state.charts[0].data.datasets[0].label'), '立刻匯出的圖例')
 
+    def test_co2_hourly_chart_can_be_edited_and_exported_repeatedly(self):
+        for comparison, count in [('mine', 1), ('hives', 2)]:
+            with self.subTest(comparison=comparison):
+                self.page.locator('#closeStyle').click()
+                self.page.locator('[data-step="2"]').click()
+                self.page.locator('#comparisonMode').select_option(comparison)
+                self.page.locator('#chartMode').select_option('co2hour')
+                self.page.locator('#sourceNext').click()
+                self.page.wait_for_function("state.co2Chart!==null&&state.renderMode==='co2hour'&&!document.querySelector('#sourceNext').disabled")
+                self.page.locator('#openStyle').click()
+                for index in range(3):
+                    name = f'{comparison} 二氧化碳 {index}'
+                    self.fill_live('#innerName-co2', name,
+                                   'state.co2Chart?.data.datasets[0].label===' + json.dumps(name))
+                    self.page.locator('#applyFormat').click()
+                    self.assertEqual(self.page.locator('#co2DailyCard .line-legend').count(), 1)
+                    self.assertEqual(self.page.locator('#co2DailyCard .line-legend button').count(), count)
+                    self.assertTrue(self.page.evaluate("Chart.getChart('co2DailyChart')===state.co2Chart"))
+                    self.assertEqual(self.page.evaluate('Object.keys(Chart.instances).length'), 1)
+                    self.assertFalse(self.page.locator('#styleStatus').evaluate("el=>el.classList.contains('has-error')"))
+                self.fill_live('#chartTitle', comparison + ' 24 小時比較',
+                               'state.co2Chart?.$title.startsWith(' + json.dumps(comparison + ' 24 小時比較') + ')')
+                self.fill_live('#axisTitle-co2', 'CO₂ 自訂座標軸', "state.co2Chart?.options.scales.y.title.text==='CO₂ 自訂座標軸'")
+                self.fill_live('#lineWidth', '5', 'state.co2Chart?.data.datasets.every(d=>d.borderWidth===5)')
+                with self.page.expect_download() as download:
+                    self.page.locator('#panelDownloadCurrent').click()
+                self.assertTrue(Path(download.value.path()).read_bytes().startswith(b'\x89PNG\r\n\x1a\n'))
+                self.assertEqual(self.page.evaluate('Object.keys(Chart.instances).length'), 1)
+                self.assertEqual(self.page.evaluate('state.hourBinsBySource.hive[8]'), {'sum': 2400, 'n': 2})
+
     def test_settings_round_trip_and_legacy_import(self):
         self.fill_live('#innerName-temp', '儲存的圖例', "state.charts[0].data.datasets[0].label==='儲存的圖例'")
         self.fill_live('#axisTitle-temp', '儲存的座標軸', "state.metrics.temp.title==='儲存的座標軸'")
@@ -183,6 +214,33 @@ class ChartEditorTests(unittest.TestCase):
         legacy['settings']['innerName-temp'] = '舊設定的圖例'
         self.page.locator('#loadSettings').set_input_files({'name': 'legacy.json', 'mimeType': 'application/json', 'buffer': json.dumps(legacy).encode()})
         self.page.wait_for_function("state.charts[0].data.datasets[0].label==='舊設定的圖例'")
+
+    def test_co2_chart_recovers_from_incomplete_initialization(self):
+        self.page.locator('#closeStyle').click()
+        self.page.locator('[data-step="2"]').click()
+        self.page.locator('#chartMode').select_option('co2hour')
+        self.page.locator('#sourceNext').click()
+        self.page.wait_for_function('state.co2Chart!==null')
+        self.page.locator('#openStyle').click()
+        self.page.evaluate("""() => {
+            const original=addPointEditor;
+            let failNext=true;
+            addPointEditor=function(chart){
+                if(failNext){failNext=false;throw Error('Point editor initialization failed')}
+                return original(chart);
+            };
+        }""")
+        self.expose('#innerName-co2').fill('失敗後重新套用')
+        self.page.wait_for_function("document.querySelector('#styleStatus').textContent==='Point editor initialization failed'")
+        self.assertEqual(self.page.evaluate('Object.keys(Chart.instances).length'), 0)
+        self.page.locator('#applyFormat').click()
+        self.page.wait_for_function("state.co2Chart?.data.datasets[0].label==='失敗後重新套用'")
+        self.assertEqual(self.page.evaluate('Object.keys(Chart.instances).length'), 1)
+        # Also recover if a previous failure lost the reference to a live chart.
+        self.page.evaluate('state.co2Chart=null')
+        self.fill_live('#innerName-co2', '恢復遺失參照的圖表',
+                       "state.co2Chart?.data.datasets[0].label==='恢復遺失參照的圖表'")
+        self.assertEqual(self.page.evaluate('Object.keys(Chart.instances).length'), 1)
 
     def test_invalid_axis_settings_block_export_and_recover(self):
         self.expose('#axisMin-temp').fill('30')

@@ -96,7 +96,22 @@ const explainBeforeComparison=explain;explain=function(){explainBeforeComparison
 const selectedBeforeComparison=selectedRainSeries;selectedRainSeries=function(){return selectedBeforeComparison().filter(s=>activePlotSources().includes(s.source))};
 const focusBeforeComparison=focusAnomaly;focusAnomaly=function(e){$('comparisonMode').value=e.source==='peer'?'peerOnly':e.source==='weather'?'weather':'mine';focusBeforeComparison(e);syncComparison()};
 const renderBeforeComparison=render;render=function(){syncComparison();renderBeforeComparison();if(!state.output.length){state.dirty=true;state.charts.forEach(c=>c.destroy());state.charts=[];state.co2Chart?.destroy();state.co2Chart=null;$('co2DailyCard').classList.add('hidden');$('charts').textContent=$('analysisStatus').textContent||'沒有符合條件的資料。';syncChartPicker()}};
-const createBeforeComparison=createChart;createChart=function(canvas,config){const chart=createBeforeComparison(canvas,config);canvas.closest('.chart-card')?.querySelectorAll('.legend-stroke').forEach((e,i)=>{const ds=config.data.datasets[i];e.style.border='none';e.innerHTML='<svg width="48" height="12" aria-hidden="true"><line x1="0" x2="48" y1="6" y2="6" stroke="'+esc(ds.borderColor)+'" stroke-width="3" stroke-dasharray="'+(ds.borderDash||[]).join(' ')+'" /></svg>'});return chart};
+const createBeforeComparison=createChart;
+createChart=function(canvas,config){
+ try{
+  const chart=createBeforeComparison(canvas,config);
+  canvas.closest('.chart-card')?.querySelectorAll('.legend-stroke').forEach((e,i)=>{
+   const ds=config.data.datasets[i];e.style.border='none';
+   e.innerHTML='<svg width="48" height="12" aria-hidden="true"><line x1="0" x2="48" y1="6" y2="6" stroke="'+esc(ds.borderColor)+'" stroke-width="3" stroke-dasharray="'+(ds.borderDash||[]).join(' ')+'" /></svg>';
+  });
+  return chart;
+ }catch(error){
+  // Creation includes legends and point editors. If any step fails, do not
+  // leave an untracked Chart.js instance holding the reusable CO2 canvas.
+  Chart.getChart(canvas)?.destroy();
+  throw error;
+ }
+};
 const resetBeforeComparison=applyDefaultFormat;applyDefaultFormat=function(){resetBeforeComparison();for(const k of keys){$('innerName-'+k).value='我的蜂箱 '+label(k);$('outerName-'+k).value='外部氣象站 '+label(k);$('peerName-'+k).value='他人的蜂箱 '+label(k)}};
 // Step two is a draft: only render after the user proceeds to step three.
 applyFormat=function(){if(workspacePage==='plot'&&workspaceStage===2){markDirty();return}if(state.hive||state.peer||state.weather)render()};

@@ -74,9 +74,14 @@ function createChart(canvas,config){
  if(!canvas.parentElement.classList.contains('canvas-frame')){const frame=document.createElement('div');frame.className='canvas-frame';canvas.parentElement.insertBefore(frame,canvas);frame.appendChild(canvas)}
  config.options.animation=false;
  config.options.plugins={...config.options.plugins,legend:{display:false}};
+ // A failed previous initialization may have registered a chart before state
+ // received it. Release the actual canvas owner as well as tracked charts.
+ Chart.getChart(canvas)?.destroy();
  const chart=new Chart(canvas,config);
- const frame=canvas.parentElement,card=frame.parentElement;
- if(card){card.querySelector('.line-legend')?.remove();const legend=document.createElement('div');legend.className='line-legend';legend.innerHTML=config.data.datasets.map((d,i)=>'<button type="button" data-series="'+i+'" aria-pressed="true"><span class="legend-stroke" style="border-color:'+d.borderColor+';border-top-style:'+(d.borderDash?.length?'dashed':'solid')+'"></span>'+esc(d.label)+'</button>').join('');card.appendChild(legend);legend.querySelectorAll('button').forEach(button=>button.onclick=()=>{const i=Number(button.dataset.series),visible=!chart.isDatasetVisible(i);chart.setDatasetVisibility(i,visible);button.setAttribute('aria-pressed',String(visible));chart.update()})}
+ // The frame can be inside .chart-scroll after the first render. The chart
+ // card still owns its legend, including legends moved into the footer.
+ const card=canvas.closest('.chart-card');
+ if(card){card.querySelectorAll('.line-legend').forEach(legend=>legend.remove());const legend=document.createElement('div');legend.className='line-legend';legend.innerHTML=config.data.datasets.map((d,i)=>'<button type="button" data-series="'+i+'" aria-pressed="true"><span class="legend-stroke" style="border-color:'+d.borderColor+';border-top-style:'+(d.borderDash?.length?'dashed':'solid')+'"></span>'+esc(d.label)+'</button>').join('');card.appendChild(legend);legend.querySelectorAll('button').forEach(button=>button.onclick=()=>{const i=Number(button.dataset.series),visible=!chart.isDatasetVisible(i);chart.setDatasetVisibility(i,visible);button.setAttribute('aria-pressed',String(visible));chart.update()})}
  return chart;
 }
 
