@@ -55,8 +55,8 @@ function controls(){return keys.map(k=>`<label class="metric"><strong>${label(k)
 function dataFor(k,source,day=null){
  const rows=state.output.filter(x=>x.key===k&&x.source===source&&(!day||new Date(x.time).toDateString()===day));
  const base=({raw:30000,'5min':300000,'15min':900000,hour:3600000,day:86400000})[effectiveMode()];
- const step=source==='weather'?Math.max(base,3600000):base,points=[];
- rows.forEach((r,i)=>{if(i&&r.time-rows[i-1].time>step*1.8)points.push({x:rows[i-1].time+step,y:null});points.push({x:r.time,y:r.value})});return points;
+ const step=weatherSources.includes(source)?Math.max(base,3600000):base,points=[];
+ rows.forEach((r,i)=>{if(i&&r.time-rows[i-1].time>step*1.8)points.push({x:plotTimeFor(source,rows[i-1].time+step),y:null});points.push({x:plotTimeFor(source,r.time),y:r.value,originalTime:r.time})});return points;
 }
 function xScale(day=false){return {type:'linear',afterBuildTicks:axis=>{
  const base=({raw:60000,'5min':300000,'15min':900000,hour:3600000,day:86400000})[effectiveMode()];

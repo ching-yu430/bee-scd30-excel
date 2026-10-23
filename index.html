@@ -150,7 +150,7 @@ body[data-stage="3"][data-workspace-page="plot"] main{padding-top:10px;padding-r
 
 
 /* SOURCE: comparison.css */
-.upload-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;align-items:stretch}
+.upload-grid{align-items:stretch}
 .upload-panel{min-width:0;align-content:start;gap:12px}
 .upload-panel .file-status{overflow-wrap:anywhere;font-size:14px;line-height:1.65}
 .comparison-panel{display:grid;grid-template-columns:minmax(220px,1fr) auto;gap:12px 24px;align-items:end;background:#edf3ef;border:1px solid #c9d8cf;border-radius:12px;padding:18px;margin:0 0 20px}
@@ -160,7 +160,7 @@ body[data-stage="3"][data-workspace-page="plot"] main{padding-top:10px;padding-r
 .source-files-fold{margin-top:12px;max-height:430px;overflow:auto;padding:4px 10px;border-top:1px solid #d4dfd7}
 .source-files-fold>summary{position:sticky;top:0;background:#f9fbf8;z-index:1;padding:14px;cursor:pointer;font-weight:600}
 .rain-series-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-@media(max-width:1050px){.upload-grid{grid-template-columns:1fr!important}.upload-panel{grid-template-columns:48px minmax(0,1fr) auto}.upload-panel .file-status{grid-column:2/-1}.comparison-panel{grid-template-columns:1fr}.rain-series-grid{grid-template-columns:1fr}}
+@media(max-width:1050px){.upload-panel{grid-template-columns:48px minmax(0,1fr) auto}.upload-panel .file-status{grid-column:2/-1}.comparison-panel{grid-template-columns:1fr}.rain-series-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.upload-panel{grid-template-columns:38px minmax(0,1fr);padding:14px}.upload-panel .file-button,.upload-panel .file-status{grid-column:1/-1;justify-self:stretch;width:100%}.comparison-panel{padding:12px}.comparison-panel button{width:100%}}
 
 
@@ -208,7 +208,7 @@ input[type=color]{min-width:46px;width:46px;height:36px;padding:3px;border:1px s
 @media(prefers-reduced-motion:reduce){button,.file-button{transition:none}}
 
 /* v22: explicit spacing and identical, resilient palette controls. */
-:root{--bee-studio-version:22;--paper:#f3f5f4;--ink:#203b36;--muted:#63756e}
+:root{--bee-studio-version:23;--paper:#f3f5f4;--ink:#203b36;--muted:#63756e}
 .release-warning{padding:18px;margin:16px 0;border:2px solid #ae5943;border-radius:10px;background:#fff4ec;color:#783822;line-height:1.8}
 #stylePanel{background:#f4f6f4;padding:20px;scroll-padding-top:88px}
 #stylePanel .style-header{background:#f4f6f4;padding:12px 0 18px;margin-bottom:16px;top:-20px}
@@ -283,6 +283,36 @@ body[data-stage="3"][data-workspace-page="plot"] main{padding-right:24px}
  .chart-heading .chart-picker{display:block;width:100%}
  #stylePanel{width:min(420px,100vw)}
 }
+
+
+/* SOURCE: experiments.css */
+/* Purpose first; experimental identity remains visible throughout the workflow. */
+.purpose-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,.7fr);gap:14px 32px;align-items:center;background:#edf3ef;margin-top:18px}
+.purpose-panel h2{font-size:25px;margin-bottom:10px}.purpose-panel p{margin-bottom:0;color:var(--muted)}.purpose-panel #purposeHint{grid-column:1/-1;padding-top:12px;border-top:1px solid #d5e0d8}
+#sourcePanel{border:0;background:transparent;padding:0}#sourcePanel>summary{padding:12px 0 18px;font-size:18px;font-weight:700}
+.upload-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;border:0;background:transparent;padding:0}
+.experiment-card{min-width:0;border:1px solid var(--line);border-radius:14px;background:white;padding:22px}
+.experiment-card-heading{display:flex;gap:14px;align-items:center;padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:18px}.experiment-card-heading label{flex:1;min-width:0}
+.experiment-badge{display:grid;place-items:center;flex:0 0 42px;height:42px;border-radius:12px;background:#e8efe9;color:var(--green);font-size:20px;font-weight:700}
+#peerExperimentCard .experiment-badge{background:#eee9f4;color:#725086}
+.experiment-upload h3{font-size:16px;margin-bottom:8px}.experiment-upload p{font-size:13px;color:var(--muted)}.experiment-upload .file-button{display:block;text-align:center;width:100%;margin:12px 0}
+.experiment-data-summary{font-size:12px;line-height:1.8;color:var(--muted);overflow-wrap:anywhere;margin:12px 0}.mapping-shortcut{font-size:12px;padding:7px 10px;min-height:36px}
+.experiment-weather-toggle{margin-top:20px;padding:12px;border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;gap:10px;line-height:1.6;font-size:13px}.experiment-weather-toggle input{flex:0 0 20px;width:20px;margin:0}
+.experiment-station{margin-top:12px;padding:14px;background:#f6f8f5;border:1px solid var(--line);border-radius:8px}.experiment-station summary{font-weight:600;cursor:pointer}.experiment-station p{margin:10px 0 0}
+.experiment-ranges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:18px 0}
+.experiment-range-card{padding:18px;border:1px solid var(--line);border-radius:10px;background:#f8faf7;min-width:0}.experiment-range-card h3{font-size:16px;margin-bottom:14px}
+.experiment-period-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:14px}.experiment-period-fields label{min-width:0}.experiment-period-fields input{min-width:0;width:100%}
+.experiment-origin{display:grid;gap:10px;border-top:1px solid var(--line);padding-top:14px;margin:14px 0}.experiment-origin .check-tile{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line)}.experiment-origin input[type=checkbox]{width:20px;margin:0}.experiment-origin p{margin:0}
+.overview-controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;align-items:end;background:#edf3ef;border:1px solid #d5e2d8;border-radius:12px;padding:18px;margin:16px 0}
+.overview-controls label{min-width:0}.overview-controls select{width:100%}
+.experiment-warnings{grid-column:1/-1;margin:0}
+.experiment-context{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0}.experiment-context-card{padding:12px 16px;border-left:4px solid #658b78;background:#f0f4f0;border-radius:8px;display:flex;flex-direction:column;gap:5px;min-width:0}.experiment-context-card:nth-child(2){border-left-color:#8a719b}.experiment-context-card span{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+#advancedComparison{padding:16px;margin:18px 0;border:1px solid var(--line);border-radius:10px}#advancedComparison>summary{cursor:pointer;font-weight:600}#advancedComparison>label{margin:16px 0}#advancedComparison .comparison-panel{margin-top:16px}
+.profile-coverage{margin-top:16px}.profile-coverage>summary{font-weight:600;cursor:pointer}.profile-coverage table{width:100%;margin-top:14px}.profile-coverage .query-table-wrap{max-height:360px;overflow:auto}
+.experiment-anomalies{margin-top:18px}.experiment-anomalies .section-heading{align-items:center;margin-bottom:12px}.experiment-anomalies h3{margin-bottom:4px}.experiment-anomalies .section-heading p{font-size:13px;color:var(--muted);margin:0}.experiment-anomaly-days{display:flex;gap:10px;flex-wrap:wrap}.experiment-anomaly-days button{text-align:left}
+.rain-series-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}
+@media(max-width:900px){.purpose-panel{grid-template-columns:minmax(0,1fr)}.purpose-panel #purposeHint{grid-column:auto}.experiment-period-fields{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.upload-grid,.experiment-ranges,.experiment-context{grid-template-columns:minmax(0,1fr)}.experiment-card{padding:18px}.purpose-panel{padding:18px;gap:16px}.purpose-panel h2{font-size:22px}.overview-controls{grid-template-columns:repeat(2,minmax(0,1fr));padding:14px;gap:12px}.overview-controls label{font-size:12px}.overview-controls select{font-size:13px;padding:9px}.experiment-anomalies .section-heading{display:block}.experiment-anomalies .section-heading button{margin-top:12px;width:100%}}
 </style>
 <!-- END BUNDLED SITE STYLES -->
     
@@ -367,31 +397,33 @@ body[data-stage="3"][data-workspace-page="plot"] main{padding-right:24px}
     <footer>蜂箱環境資料分析台 · 正在確認網站版本</footer>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="app.js?v=22.3"></script>
-    <script src="points.js?v=22"></script>
-    <script src="research.js?v=22.2"></script>
-    <script src="time-axis.js?v=22"></script>
-    <script src="workspace.js?v=22.2"></script>
-    <script src="layout.js?v=22"></script>
-    <script src="query.js?v=22"></script>
-    <script src="query-ui.js?v=22"></script>
-    <script src="ease.js?v=22"></script>
-    <script src="tick-controls.js?v=22"></script>
-    <script src="exceedance.js?v=22"></script>
-    <script src="query-actions.js?v=22"></script>
-    <script src="rainfall.js?v=22"></script>
-    <script src="anomalies.js?v=22"></script>
-    <script src="workflow.js?v=22"></script>
-    <script src="panel-polish.js?v=22"></script>
-    <script src="hive-import.js?v=22"></script>
-    <script src="comparison.js?v=22.3"></script>
-    <script src="studio.js?v=22.2"></script>
-    <script src="asset-check.js?v=22.3"></script>
+    <script src="app.js?v=23"></script>
+    <script src="experiment-model.js?v=23"></script>
+    <script src="points.js?v=23"></script>
+    <script src="research.js?v=23"></script>
+    <script src="time-axis.js?v=23"></script>
+    <script src="workspace.js?v=23"></script>
+    <script src="layout.js?v=23"></script>
+    <script src="query.js?v=23"></script>
+    <script src="query-ui.js?v=23"></script>
+    <script src="ease.js?v=23"></script>
+    <script src="tick-controls.js?v=23"></script>
+    <script src="exceedance.js?v=23"></script>
+    <script src="query-actions.js?v=23"></script>
+    <script src="rainfall.js?v=23"></script>
+    <script src="anomalies.js?v=23"></script>
+    <script src="workflow.js?v=23"></script>
+    <script src="panel-polish.js?v=23"></script>
+    <script src="hive-import.js?v=23"></script>
+    <script src="comparison.js?v=23"></script>
+    <script src="studio.js?v=23"></script>
+    <script src="experiments.js?v=23"></script>
+    <script src="asset-check.js?v=23"></script>
     <script>
       // Independent guard: an old asset-check.js must not silently accept mixed releases.
-      if(document.documentElement.dataset.uiRelease!=='22' && !document.querySelector('[role="alert"]')){
+      if(document.documentElement.dataset.uiRelease!=='23' && !document.querySelector('[role="alert"]')){
         const warning=document.createElement('div');warning.setAttribute('role','alert');warning.className='release-warning';
-        warning.textContent='網站檔案版本不一致，部分功能可能無法使用。請完整更新 v22 檔案，再重新整理。';
+        warning.textContent='網站檔案版本不一致，部分功能可能無法使用。請完整更新 v23 檔案，再重新整理。';
         document.querySelector('main').prepend(warning);
       }
     </script>

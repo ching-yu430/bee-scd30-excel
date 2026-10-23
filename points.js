@@ -13,7 +13,7 @@ function preparePointLabels(config,o){
 }
 function togglePoint(chart,ds,i,remove=false){const id=pointIdentity(ds,i);if(remove||manualLabels.has(id))manualLabels.delete(id);else manualLabels.add(id);refreshPointLabels(chart)}
 function refreshPointLabels(chart){chart.data.datasets.forEach(ds=>ds.researchSelected=annotationIndices(ds,chart.$researchOptions));chart.update('none');chart.$refreshPointList?.()}
-function pointTime(chart,ds,i){const p=ds.data[i];if(ds.researchSeries.startsWith('co2hour|'))return chart.data.labels?.[i]||String(i).padStart(2,'0')+':00';if(ds.researchSeries.startsWith('overlay|')){const seconds=Math.round(p.x*3600);return String(Math.floor(seconds/3600)).padStart(2,'0')+':'+String(Math.floor(seconds%3600/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0')}return local(new Date(p.x)).replace('T',' ')}
+function pointTime(chart,ds,i){const p=ds.data[i];if(ds.researchSeries.startsWith('co2hour|'))return chart.data.labels?.[i]||String(i).padStart(2,'0')+':00';if(ds.researchSeries.startsWith('overlay|')){const seconds=Math.round(p.x*3600);return String(Math.floor(seconds/3600)).padStart(2,'0')+':'+String(Math.floor(seconds%3600/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0')}return local(new Date(p.originalTime??p.x)).replace('T',' ')}
 function normalizedPointTime(text){
  text=String(text).normalize('NFKC').trim().replace('T',' ').replace(/[年月/]/g,'-').replace(/日/g,' ').replace(/\s+/g,' ');
  const m=text.match(/^(?:(\d{4})-(\d{1,2})-(\d{1,2})\s+)?(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/);if(!m)return null;

@@ -59,7 +59,8 @@ class ChartEditorTests(unittest.TestCase):
         self.page.route('https://fonts.googleapis.com/**', lambda route: route.abort())
         self.page.goto(f'http://127.0.0.1:{self.server.server_port}/', wait_until='networkidle')
         self.assertEqual(self.page.evaluate('missingWebsiteParts'), [])
-        self.assertIn('v22.3', self.page.locator('footer').inner_text())
+        self.assertIn('v23', self.page.locator('footer').inner_text())
+        self.page.locator('#experimentPurpose').select_option('parallel')
         for source, delta in [('hive', 0), ('peer', 1), ('weather', 2)]:
             csv = ('timestamp,temperature,humidity,co2,precipitation\n'
                    f'2026-07-01 08:00:00,{25 + delta},60,1000,1\n'
@@ -69,9 +70,10 @@ class ChartEditorTests(unittest.TestCase):
                 {'name': source + '.csv', 'mimeType': 'text/csv', 'buffer': csv.encode()})
             self.page.wait_for_function(f'state.{source}?.rows.length===3')
         self.page.locator('#sourceNext').click()
-        self.page.locator('#comparisonMode').select_option('all')
+        self.expose('#comparisonMode').select_option('all')
         self.page.locator('#sourceNext').click()
         self.page.wait_for_function('state.charts.length===3')
+        self.page.locator('#overviewMetric').select_option('temp')
         self.page.locator('#openStyle').click()
 
     def tearDown(self):
@@ -133,14 +135,14 @@ class ChartEditorTests(unittest.TestCase):
         color.fill('#123456')
         self.page.wait_for_function("state.charts[0].data.datasets[0].borderColor==='#123456'")
         self.page.locator('#closeStyle').click()
-        self.page.locator('#chartPicker').select_option(index=2)
+        self.page.locator('#overviewMetric').select_option('co2')
         self.page.locator('#openStyle').click()
         self.fill_live('#innerName-co2', '自訂二氧化碳', "state.charts[2].data.datasets[0].label==='自訂二氧化碳'")
         self.page.locator('#closeStyle').click()
-        for mode, expected in [('combined', '自訂溫度'), ('daily', '自訂溫度'), ('co2hour', '自訂二氧化碳'), ('rainfall', '我的蜂箱 相對濕度')]:
+        for mode, expected in [('combined', '自訂溫度'), ('daily', '自訂溫度'), ('co2hour', '自訂二氧化碳'), ('rainfall', '實驗 A 相對濕度')]:
             with self.subTest(mode=mode):
                 self.page.locator('[data-step="2"]').click()
-                self.page.locator('#chartMode').select_option(mode)
+                self.expose('#chartMode').select_option(mode)
                 self.page.locator('#sourceNext').click()
                 self.page.wait_for_function("workspaceStage===3&&!document.querySelector('#sourceNext').disabled&&state.renderMode===" + json.dumps(mode))
                 self.page.wait_for_function("([...(state.co2Chart?[state.co2Chart]:state.charts)]).some(c=>c.data.datasets.some(d=>d.label===" + json.dumps(expected) + '))')
@@ -151,11 +153,11 @@ class ChartEditorTests(unittest.TestCase):
         self.fill_live('#peerName-temp', '對照溫度', "state.charts[0].data.datasets[1].label==='對照溫度'")
         self.page.locator('#closeStyle').click()
         self.page.locator('[data-step="2"]').click()
-        self.page.locator('#chartMode').select_option('difference')
+        self.expose('#chartMode').select_option('difference')
         self.page.locator('#sourceNext').click()
         self.page.wait_for_function("state.charts[0].data.datasets[0].label==='實驗溫度 − 對照溫度'")
         self.page.locator('[data-step="2"]').click()
-        self.page.locator('#chartMode').select_option('overlay')
+        self.expose('#chartMode').select_option('overlay')
         self.page.locator('#overlayMetric').select_option('temp')
         self.page.locator('#sourceNext').click()
         self.page.wait_for_function("state.charts[0].data.datasets[0].label==='實驗溫度 · 2026-07-01'")
@@ -172,8 +174,9 @@ class ChartEditorTests(unittest.TestCase):
             with self.subTest(comparison=comparison):
                 self.page.locator('#closeStyle').click()
                 self.page.locator('[data-step="2"]').click()
-                self.page.locator('#comparisonMode').select_option(comparison)
-                self.page.locator('#chartMode').select_option('co2hour')
+                self.expose('#comparisonMode').select_option(comparison)
+                self.expose('#chartMode').select_option('co2hour')
+                self.page.locator('#overviewMetric').select_option('co2')
                 self.page.locator('#sourceNext').click()
                 self.page.wait_for_function("state.co2Chart!==null&&state.renderMode==='co2hour'&&!document.querySelector('#sourceNext').disabled")
                 self.page.locator('#openStyle').click()
@@ -195,7 +198,7 @@ class ChartEditorTests(unittest.TestCase):
                     self.page.locator('#panelDownloadCurrent').click()
                 self.assertTrue(Path(download.value.path()).read_bytes().startswith(b'\x89PNG\r\n\x1a\n'))
                 self.assertEqual(self.page.evaluate('Object.keys(Chart.instances).length'), 1)
-                self.assertEqual(self.page.evaluate('state.hourBinsBySource.hive[8]'), {'sum': 2400, 'n': 2})
+                self.assertEqual(self.page.evaluate('({sum:state.hourBinsBySource.hive[8].sum,n:state.hourBinsBySource.hive[8].n})'), {'sum': 2400, 'n': 2})
 
     def test_settings_round_trip_and_legacy_import(self):
         self.fill_live('#innerName-temp', '儲存的圖例', "state.charts[0].data.datasets[0].label==='儲存的圖例'")
@@ -203,7 +206,7 @@ class ChartEditorTests(unittest.TestCase):
         with self.page.expect_download() as download:
             self.expose('#saveSettings').click()
         saved = Path(download.value.path()).read_bytes()
-        self.assertEqual(json.loads(saved)['version'], 22)
+        self.assertEqual(json.loads(saved)['version'], 23)
         self.expose('#resetFormat').click()
         self.page.wait_for_function("state.charts[0].data.datasets[0].label!=='儲存的圖例'")
         self.page.locator('#loadSettings').set_input_files({'name': 'saved.json', 'mimeType': 'application/json', 'buffer': saved})
@@ -218,7 +221,8 @@ class ChartEditorTests(unittest.TestCase):
     def test_co2_chart_recovers_from_incomplete_initialization(self):
         self.page.locator('#closeStyle').click()
         self.page.locator('[data-step="2"]').click()
-        self.page.locator('#chartMode').select_option('co2hour')
+        self.expose('#chartMode').select_option('co2hour')
+        self.page.locator('#overviewMetric').select_option('co2')
         self.page.locator('#sourceNext').click()
         self.page.wait_for_function('state.co2Chart!==null')
         self.page.locator('#openStyle').click()
@@ -261,7 +265,7 @@ class ChartEditorTests(unittest.TestCase):
             self.page.locator('#panelDownloadCurrent').click()
         self.assertTrue(Path(download.value.path()).stat().st_size > 1000)
         self.page.locator('#closeStyle').click()
-        for selector in ['#openStyle', '#downloadCurrentPng', '#downloadCsv', '#chartPicker']:
+        for selector in ['#openStyle', '#downloadCurrentPng', '#downloadCsv', '#overviewMetric']:
             box = self.page.locator(selector).bounding_box()
             self.assertIsNotNone(box)
             self.assertGreaterEqual(box['x'], 0)

@@ -50,7 +50,7 @@ controls=function(){return keys.map(k=>'<label class="metric studio-color"><stro
 const legendBlock=studioBlock(lookGroup,'圖例');moveFields(legendBlock,['showLegend']);
 const legendNames=studioBlock(legendBlock,'圖例名稱','依目前圖表顯示可編輯的來源，修改後即時套用。');
 const legendMetricGroups=new Map();
-for(const k of keys){const group=studioBlock(legendNames,label(k));legendMetricGroups.set(k,group);moveFields(group,['innerName-'+k,'peerName-'+k,'outerName-'+k]);studioLabel('innerName-'+k,'我的蜂箱');studioLabel('peerName-'+k,'他人的蜂箱');studioLabel('outerName-'+k,'外部氣象站')}
+for(const k of keys){const group=studioBlock(legendNames,label(k));legendMetricGroups.set(k,group);moveFields(group,['innerName-'+k,'peerName-'+k,'outerName-'+k,'weatherPeerName-'+k]);studioLabel('innerName-'+k,'實驗 A');studioLabel('peerName-'+k,'實驗 B');studioLabel('outerName-'+k,'實驗 A 氣象站');studioLabel('weatherPeerName-'+k,'實驗 B 氣象站')}
 lookGroup.prepend(legendBlock);
 
 const manualBlock=studioBlock(annotationGroup,'手動指定','開啟點選標註後，點圖上的資料點；或展開下方時間選擇。');
@@ -103,7 +103,7 @@ function syncStudio(){
  const current=charts.find(chart=>{const card=chart.canvas.closest('.chart-card');return card&&!card.hidden&&!card.classList.contains('hidden')});
  const metrics=current?new Set(current.data.datasets.map(metricOf)):new Set(keys);
  const sources=value('chartMode')==='overlay'?[value('overlaySource','hive')]:activePlotSources();
- for(const k of keys){legendMetricGroups.get(k).hidden=!metrics.has(k);for(const [source,prefix]of [['hive','inner'],['peer','peer'],['weather','outer']])$(prefix+'Name-'+k).closest('label').hidden=!sources.includes(source)}
+ for(const k of keys){legendMetricGroups.get(k).hidden=!metrics.has(k);for(const [source,prefix]of [['hive','inner'],['peer','peer'],['weather','outer'],['weatherPeer','weatherPeer']])$(prefix+'Name-'+k).closest('label').hidden=!sources.includes(source)}
  for(const panel of pointHost.children){const chart=charts.find(c=>c.canvas.id===panel.dataset.canvas),card=chart?.canvas.closest('.chart-card');panel.hidden=!card||card.hidden||card.classList.contains('hidden')}
  pointEmpty.hidden=charts.length>0;
  $('pointStyle').disabled=!checked('showPoints');$('pointSize').disabled=!(checked('showPoints')||checked('showValues')||checked('showMax')||checked('showMin')||checked('pickPoints')||manualLabels.size);
@@ -118,10 +118,10 @@ for(const [id,text]of Object.entries(studioLabels))studioLabel(id,text);
 clear.textContent='清除手動標註';$('saveSettings').textContent='下載分析設定（JSON）';$('resetFormat').textContent='還原圖表外觀';
 const settingsLabel=$('loadSettings').closest('label');for(const node of [...settingsLabel.childNodes])if(node.nodeType===3)node.textContent='載入分析設定（JSON）';
 $('resetFormat').title='只還原圖表外觀，不清除上傳資料、日期或篩選條件。';
-$('co2Preset').textContent='範例：我的蜂箱 CO₂ ＞ 2500';$('queryPreset').textContent='我的蜂箱 CO₂ ＞ 2500';
+$('co2Preset').textContent='範例：實驗 A CO₂ ＞ 2500';$('queryPreset').textContent='實驗 A CO₂ ＞ 2500';
 for(const [id,text]of [['querySource','資料來源'],['queryDateMode','日期範圍'],['queryMetric','查詢指標'],['queryOp','數值條件'],['filterSource','套用來源'],['filterStage','篩選方式'],['overlayMetric','每日疊圖指標'],['overlaySource','每日疊圖來源']])studioLabel(id,text);
 for(const k of keys){studioLabel('axisMin-'+k,'最小值');studioLabel('axisMax-'+k,'最大值');studioLabel('axisStep-'+k,'刻度間距')}
-$('peerFile').closest('.file-button').setAttribute('aria-label','選擇他人的蜂箱資料');
+$('peerFile').closest('.file-button').setAttribute('aria-label','選擇實驗 B資料');
 stylePanel.setAttribute('aria-label','外觀、標註與下載');
 stylePanel.querySelector('.style-header').after(Object.assign(document.createElement('p'),{className:'studio-intro',textContent:'外觀即時套用；原始資料不變。'}));
 const styleFeedback=document.createElement('div');styleFeedback.id='styleFeedback';styleFeedback.className='studio-feedback';
@@ -131,7 +131,7 @@ styleFeedback.append(styleStatus,$('applyFormat'));stylePanel.querySelector('.st
 const panelQuickDownloads=document.createElement('div');panelQuickDownloads.className='studio-quick-downloads';
 for(const [id,target,text]of [['panelDownloadCurrent','downloadCurrentPng','下載目前 PNG'],['panelDownloadCsv','downloadCsv','下載資料 CSV']]){const button=document.createElement('button');button.id=id;button.type='button';button.className='secondary';button.textContent=text;button.onclick=()=>$(target).click();panelQuickDownloads.appendChild(button)}
 styleFeedback.appendChild(panelQuickDownloads);
-for(const id of [...formatIds,...keys.map(k=>'peerName-'+k),'rainColor','rainAxisTitle','shadeShort','shadeLong']){$(id).oninput=queueFormatPreview;$(id).onchange=flushFormatPreview}
+for(const id of [...formatIds,...keys.flatMap(k=>['peerName-'+k,'weatherPeerName-'+k]),'rainColor','rainAxisTitle','shadeShort','shadeLong']){$(id).oninput=queueFormatPreview;$(id).onchange=flushFormatPreview}
 for(const id of ['xTickInterval','xTickCount','xTickUnit']){$(id).oninput=e=>{syncTickControls();queueFormatPreview(e)};$(id).onchange=()=>{syncTickControls();flushFormatPreview()}}
 document.addEventListener('change',e=>{if(stylePanel.contains(e.target))syncStudio()});
 document.addEventListener('input',e=>{if(stylePanel.contains(e.target)&&e.target.type==='color')syncStudioColors()});
@@ -139,4 +139,4 @@ const resetBeforeStudio=applyDefaultFormat;applyDefaultFormat=function(){resetBe
 syncStudio();syncPanelDownloads();
 // The legacy tab listener collapses sources after switching; step 1 should stay useful.
 tabs.addEventListener('click',()=>{if(workspacePage==='plot'&&workspaceStage===1)sourcePanel.open=true});
-document.documentElement.dataset.uiRelease='22';
+document.documentElement.dataset.uiRelease='23';
