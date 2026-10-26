@@ -115,6 +115,7 @@ function syncExperimentUI(){
  $('diurnalControl').hidden=!profile;profileHelp.hidden=!profile;
  profileHelp.textContent=(value('profileMethod')==='days'?'先算各日期同一小時的平均，再讓有資料的日期等權平均；缺測日期不補 0。':'每筆有效觀測等權平均；同一小時內，觀測筆數較多的日期影響較大。')+' 起始整點只改變顯示順序，不改變平均值或每日分組。';
  $('aggregation').closest('label').hidden=profile;
+ $('aggregation').disabled=profile;
  rainStationField.hidden=mode!=='rainfall';
  const difference=$('chartMode').querySelector('option[value="difference"]');difference.disabled=different;
  coverage.hidden=!profile;returnOverview.hidden=!state.experimentDetail;

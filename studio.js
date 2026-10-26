@@ -60,6 +60,7 @@ const pointEmpty=document.createElement('p');pointEmpty.id='studioPointEmpty';po
 const autoBlock=studioBlock(annotationGroup,'自動標註','最高／最低值依目前圖表計算；同值取最早一點。');moveFields(autoBlock,['showMax','showMin','showValues']);
 autoBlock.classList.add('studio-choice-group');
 const numberBlock=studioBlock(annotationGroup,'數值格式');moveFields(numberBlock,['labelDecimals','labelLimit']);
+const labelLimitHint=document.createElement('p');labelLimitHint.className='studio-hint';labelLimitHint.textContent='上限只限制自動數值文字；標記點、最高／最低值與手動標註不受限制。';numberBlock.appendChild(labelLimitHint);
 const markerBlock=studioBlock(annotationGroup,'標記點');moveFields(markerBlock,['showPoints','pointStyle','pointSize']);
 const referenceBlock=studioBlock(annotationGroup,'參考線');moveFields(referenceBlock,['referenceMetric','referenceValue']);
 const shadingBlock=studioBlock(annotationGroup,'超標區域','先在「異常檢查」設定門檻並執行檢查，這裡只調整顏色。');moveFields(shadingBlock,['shadeShort','shadeLong']);
@@ -113,7 +114,7 @@ const pickerBeforeStudio=syncChartPicker;syncChartPicker=function(){pickerBefore
 const drawBeforeStudio=draw;draw=function(){const open=Boolean(pointHost.querySelector('details[open]'));pointHost.replaceChildren();drawBeforeStudio();syncStudio();if(open)for(const panel of pointHost.children)panel.open=true};
 const panelsBeforeStudio=syncPanelDownloads;syncPanelDownloads=function(){panelsBeforeStudio();const plot=workspacePage==='plot',title=plot?'圖表設定':'資料下載';stylePanel.querySelector('h2').textContent=title;stylePanel.setAttribute('aria-label',title);styleButton.textContent=plot?'外觀與圖例':'下載結果';if(plot){if(styleButton.parentElement!==chartActions)chartActions.prepend(styleButton)}else if(styleButton.parentElement!==document.body)document.body.appendChild(styleButton);exportSection.querySelector('summary').firstChild.textContent=plot?'更多下載與設定檔':'下載結果';stylePanel.querySelector('.studio-intro').hidden=!plot;$('styleFeedback').hidden=!plot;exportActions.hidden=!plot;dataActions.hidden=plot;exportHint.textContent=plot?'圖片品質、全部圖表與設定檔':'依目前分頁下載查詢或檢查結果'};
 
-const studioLabels={chartTitle:'圖表標題',chartSubtitle:'副標題（選填）',fontSize:'圖表文字大小（px）',lineWidth:'線條粗細（px）',rainColor:'降水量',showLegend:'顯示圖例',pickPoints:'點選資料點標註',showMax:'標註最高值',showMin:'標註最低值',showValues:'自動挑選數值標註',labelDecimals:'數值小數位數',labelLimit:'自動標註／標記點上限（每條線）',showPoints:'顯示標記點',pointStyle:'標記點形狀',pointSize:'標記點大小（px）',referenceMetric:'參考線指標',referenceValue:'參考線數值',shadeShort:'短暫超標',shadeLong:'持續超標',xAxisTitle:'橫軸標題（留白則自動）',rainAxisTitle:'降水量縱軸',beginZero:'縱軸由 0 開始',showGrid:'顯示格線',exportWidth:'圖片寬度（px）',includeNotes:'圖片附上分析條件'};
+const studioLabels={chartTitle:'圖表標題',chartSubtitle:'副標題（選填）',fontSize:'圖表文字大小（px）',lineWidth:'線條粗細（px）',rainColor:'降水量',showLegend:'顯示圖例',pickPoints:'點選資料點標註',showMax:'標註最高值',showMin:'標註最低值',showValues:'自動挑選數值標註',labelDecimals:'數值小數位數',labelLimit:'自動數值標註上限（每條線）',showPoints:'顯示標記點',pointStyle:'標記點形狀',pointSize:'標記點大小（px）',referenceMetric:'參考線指標',referenceValue:'參考線數值',shadeShort:'短暫超標',shadeLong:'持續超標',xAxisTitle:'橫軸標題（留白則自動）',rainAxisTitle:'降水量縱軸',beginZero:'縱軸由 0 開始',showGrid:'顯示格線',exportWidth:'圖片寬度（px）',includeNotes:'圖片附上分析條件'};
 for(const [id,text]of Object.entries(studioLabels))studioLabel(id,text);
 clear.textContent='清除手動標註';$('saveSettings').textContent='下載分析設定（JSON）';$('resetFormat').textContent='還原圖表外觀';
 const settingsLabel=$('loadSettings').closest('label');for(const node of [...settingsLabel.childNodes])if(node.nodeType===3)node.textContent='載入分析設定（JSON）';
@@ -139,4 +140,4 @@ const resetBeforeStudio=applyDefaultFormat;applyDefaultFormat=function(){resetBe
 syncStudio();syncPanelDownloads();
 // The legacy tab listener collapses sources after switching; step 1 should stay useful.
 tabs.addEventListener('click',()=>{if(workspacePage==='plot'&&workspaceStage===1)sourcePanel.open=true});
-document.documentElement.dataset.uiRelease='23.2';
+document.documentElement.dataset.uiRelease='23.3';
