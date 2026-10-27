@@ -76,6 +76,7 @@ load=async function(files,source){
    batch.mapping=autoMapping(batch);batches.push(batch);
   }
   if(generation!==hiveLoadGeneration[source])return;
-  state[source]=mergeHiveBatches(batches);if(source==='peer'&&!state.hive&&!state.weather&&$('comparisonMode'))$('comparisonMode').value='peerOnly';state.querySubset=null;manualLabels.clear();markDirty();if(typeof invalidateAnomalies==='function')invalidateAnomalies();setup();
+  state[source]=mergeHiveBatches(batches);if(source==='peer'&&!state.hive&&!state.weather&&$('comparisonMode'))$('comparisonMode').value='peerOnly';state.querySubset=null;manualLabels.clear();markDirty();if(typeof invalidateAnomalies==='function')invalidateAnomalies();setup();return state[source];
  }catch(error){if(generation===hiveLoadGeneration[source])$(source+'Status').textContent=`匯入失敗，原資料未更動：${error.message}`}
+ finally{if(generation===hiveLoadGeneration[source])$(source+'File').value=''}
 };

@@ -11,7 +11,7 @@ for(const source of sourceIds){
  const row=document.createElement('label');row.className='result-source';row.id='resultSource-'+source;
  const input=document.createElement('input');input.type='checkbox';input.id='sourceShown-'+source;input.checked=true;
  const name=document.createElement('span');name.className='result-source-name';row.append(input,name);$('resultSources').appendChild(row);
- settingIds.push(input.id);input.onchange=()=>{applyAllSourceVisibility();syncResultTools()};
+ settingIds.push(input.id);input.onchange=()=>{if(input.checked)showSourceSeries(source);applyAllSourceVisibility();syncResultTools()};
  for(const key of keys){
   const stored=document.createElement('input');stored.type='hidden';stored.id='sourceColorValue-'+source+'-'+key;settingIds.push(stored.id);
   const field=document.createElement('label');field.className='source-color-control';field.innerHTML='<span>'+label(key)+'</span>';
@@ -37,6 +37,7 @@ function applySourceVisibility(chart){
   chart.canvas.closest('.chart-card')?.querySelectorAll('.line-legend button')[index]?.setAttribute('aria-pressed',String(allowed&&visible));
  });chart.update('none');
 }
+function showSourceSeries(source){for(const [id]of selectedVisible)if(id.split('|')[3]===source)selectedVisible.delete(id);for(const chart of resultCharts())for(const dataset of chart.data.datasets)if(datasetSource(dataset)===source){selectedVisible.delete(dataset.researchSeries);selectedVisible.delete(dataset.label)}}
 function applyAllSourceVisibility(){for(const chart of resultCharts())applySourceVisibility(chart)}
 const createBeforeResultTools=createChart;
 createChart=function(canvas,config){
@@ -54,6 +55,13 @@ $('downloadCurrentPng').textContent='下載 PNG';$('downloadCsv').textContent='�
 const exportOptionsButton=document.createElement('button');exportOptionsButton.id='imageOptions';exportOptionsButton.type='button';exportOptionsButton.className='secondary';exportOptionsButton.textContent='圖片尺寸／設定檔';
 exportOptionsButton.onclick=()=>{downloads.open=false;toggleStyle(true);selectSettingsTab(3)};moreActions.appendChild(exportOptionsButton);
 const changeDataButton=document.createElement('button');changeDataButton.id='resultChangeData';changeDataButton.type='button';changeDataButton.className='secondary';changeDataButton.textContent='更換資料／模式';changeDataButton.onclick=()=>{downloads.open=false;showWorkspaceStage(1,false)};moreActions.appendChild(changeDataButton);
+downloads.querySelector('summary').setAttribute('aria-label','更多下載與資料操作');
+document.addEventListener('pointerdown',event=>{if(downloads.open&&!downloads.contains(event.target))downloads.open=false});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&downloads.open){downloads.open=false;downloads.querySelector('summary').focus({preventScroll:true})}});
+moreActions.addEventListener('click',event=>{if(event.target.closest('button'))downloads.open=false});
+const resultEmpty=document.createElement('section');resultEmpty.id='resultEmpty';resultEmpty.hidden=true;resultEmpty.setAttribute('role','status');
+resultEmpty.innerHTML='<strong>目前沒有可顯示的圖表</strong><p>請調整分析期間、篩選條件或圖表指標。</p><button id="adjustEmptyResults" type="button" class="secondary">調整分析條件</button>';
+$('chartCard').appendChild(resultEmpty);$('adjustEmptyResults').onclick=()=>showWorkspaceStage(2,false);
 const periodDetails=document.createElement('details');periodDetails.id='resultPeriodDetails';periodDetails.innerHTML='<summary>分析期間</summary>';periodDetails.appendChild(context);resultsTools.after(periodDetails);
 const chartNavigation=document.createElement('div');chartNavigation.id='resultChartNavigation';
 const previousChart=document.createElement('button');previousChart.id='previousResultChart';previousChart.type='button';previousChart.className='secondary';previousChart.textContent='上一張';
@@ -71,18 +79,21 @@ function syncResultTools(){
  const viewing=workspacePage==='plot'&&workspaceStage===3;
  resultsTools.hidden=periodDetails.hidden=!viewing;comparisonPanel.hidden=viewing||isQuickMode();
  chartNavigation.hidden=!viewing||chartPicker.options.length<2||['continuous','co2hour'].includes(value('chartMode'));
- placeResultControls(overviewControls,viewing?[chartNavigation,resultsExtra,resultsTools,periodDetails]:[comparisonPanel,resultsExtra]);
+ placeResultControls(overviewControls,viewing?[chartNavigation,resultsExtra,resultsTools,periodDetails,resultEmpty]:[comparisonPanel,resultsExtra]);
  $('overviewView').value=value('chartMode');
  for(const option of $('overviewView').querySelectorAll('[data-result-mode]')){option.hidden=false;option.disabled=$('chartMode').querySelector('option[value="'+option.value+'"]')?.disabled||isQuickMode()&&['difference','rainfall'].includes(option.value)}
  previousChart.disabled=Number(chartPicker.value)<=0;nextChart.disabled=Number(chartPicker.value)>=chartPicker.options.length-1;chartPickerLabel.hidden=chartNavigation.hidden;
  const mode=value('chartMode');resultsExtra.hidden=!['overlay','rainfall'].includes(mode);if(!viewing)resultsExtra.open=true;
  $('overlayMetric').closest('label').hidden=overlaySourceField.hidden=mode!=='overlay';rainControls.hidden=rainStationField.hidden=mode!=='rainfall';
  const chart=currentSettingsChart(),sources=new Set(resultCharts().flatMap(c=>c.data.datasets.map(datasetSource)));
+ resultsTools.hidden=!viewing||!sources.size;
  for(const source of sourceIds){
   const row=$('resultSource-'+source);row.hidden=!sources.has(source);row.querySelector('.result-source-name').textContent=sourceName(source);$('sourceShown-'+source).setAttribute('aria-label','顯示'+sourceName(source));row.classList.toggle('source-muted',!sourceIsShown(source));
   for(const key of keys)$('panelColor-'+source+'-'+key).closest('.source-legend-edit').hidden=$(legendPrefixes[source]+key).closest('label').hidden;
  }
- $('downloadCurrentPng').disabled=$('downloadPng').disabled=!chart;
+ for(const id of ['downloadCurrentPng','downloadPng','downloadCsv','panelDownloadCurrent','panelDownloadCsv'])$(id).disabled=!chart;
+ resultEmpty.hidden=!viewing||Boolean(chart);$('charts').classList.toggle('results-no-chart',viewing&&!chart);
+ if(viewing&&!chart)coverage.hidden=true;
  if(viewing)modeBar.hidden=true;
  profileHelp.hidden=viewing||mode!=='co2hour';$('profileMethod').title=profileHelp.textContent;$('diurnalStart').title=profileHelp.textContent;
  syncResultColors();syncSwapActions();

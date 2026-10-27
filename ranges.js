@@ -166,7 +166,7 @@ function restoreHighlights(saved){comparisonRanges=normalizeHighlights(saved);ed
 const studioBeforeRanges=syncStudio;syncStudio=function(){studioBeforeRanges();syncRanges()};
 const pickerBeforeRanges=syncChartPicker;syncChartPicker=function(){pickerBeforeRanges();syncRanges()};
 const resetBeforeRanges=applyDefaultFormat;applyDefaultFormat=function(){resetBeforeRanges();restoreHighlights([]);refreshRanges()};
-const loadBeforeRanges=load;load=async function(files,source){const before=state[source];await loadBeforeRanges(files,source);if(state[source]!==before){restoreHighlights([]);refreshRanges()}};
+const loadBeforeRanges=load;load=async function(files,source){const data=await loadBeforeRanges(files,source);if(data&&state[source]===data){restoreHighlights([]);refreshRanges()}return data};
 const stageBeforeRanges=showWorkspaceStage;showWorkspaceStage=function(...args){if(rangeTarget)stopRangeSelection();stageBeforeRanges(...args)};
 const pageBeforeRanges=switchPage;switchPage=function(...args){if(rangeTarget)stopRangeSelection();pageBeforeRanges(...args)};
 syncRanges();

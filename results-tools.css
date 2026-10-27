@@ -38,3 +38,7 @@ body[data-stage="3"] .chart-heading{margin-top:18px;margin-bottom:10px}
  .chart-heading .chart-actions #resultDownloads{width:100%}.chart-heading #resultDownloads>summary{font-size:13px;text-align:center;padding:10px 6px}
  .chart-heading #downloadCurrentPng{order:-2}.chart-heading #downloadCsv{order:-1}
 }
+/* Failed or empty analyses offer a clear route back to the relevant controls. */
+#resultEmpty{padding:24px;border:1px solid var(--line);border-radius:10px;background:#fff;margin:14px 0}
+#resultEmpty strong{display:block;font-size:16px;margin-bottom:6px}#resultEmpty p{font-size:13px;color:var(--muted);margin-bottom:14px}
+#charts.results-no-chart{display:none}

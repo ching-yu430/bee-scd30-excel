@@ -29,7 +29,20 @@ function autoMapping(d){
  return {time,clock,...Object.fromEntries(keys.map(k=>[k,find(d.headers,k)]))};
 }
 
-function dateFromName(name){const m=name.match(/(20\d{2})[-_](\d{1,2})[-_](\d{1,2})/);return m?new Date(+m[1],+m[2]-1,+m[3]):null}async function load(files,source){try{const batches=await Promise.all([...files].map(async f=>{const rows=await read(f);return rows.map(r=>({...r,__fileDate:dateFromName(f.name)}))}));const rows=batches.flat();state[source]={rows,headers:[...new Set(rows.flatMap(Object.keys).filter(k=>k!=='__fileDate'))],mapping:{},format:'auto'};state[source].mapping=autoMapping(state[source]);setup();$(`${source}Status`).textContent=`已載入 ${['weather','weatherPeer'].includes(source)?`${files.length} 個檔案，`:files[0].name+' · '}${rows.length.toLocaleString()} 筆資料`}catch(e){$(`${source}Status`).textContent=`無法讀取：${e.message}`}}$('hiveFile').onchange=e=>e.target.files.length&&load(e.target.files,'hive');$('weatherFile').onchange=e=>e.target.files.length&&load(e.target.files,'weather');
+function dateFromName(name){const m=name.match(/(20\d{2})[-_](\d{1,2})[-_](\d{1,2})/);return m?new Date(+m[1],+m[2]-1,+m[3]):null}const fileLoadGenerations={};
+async function load(files,source){
+ const list=[...files];if(!list.length)return;
+ const generation=(fileLoadGenerations[source]||0)+1;fileLoadGenerations[source]=generation;
+ $(source+'Status').textContent='正在讀取 '+list.length+' 個檔案…';
+ try{
+  const batches=await Promise.all(list.map(async file=>{const rows=await read(file);return rows.map(row=>({...row,__fileDate:dateFromName(file.name)}))}));
+  if(generation!==fileLoadGenerations[source])return;
+  const rows=batches.flat(),data={rows,headers:[...new Set(rows.flatMap(Object.keys).filter(key=>key!=='__fileDate'))],mapping:{},format:'auto'};data.mapping=autoMapping(data);state[source]=data;
+  setup();$(source+'Status').textContent='已載入 '+list.length+' 個檔案，'+rows.length.toLocaleString()+' 筆資料';return data;
+ }catch(error){if(generation===fileLoadGenerations[source])$(source+'Status').textContent='無法讀取：'+error.message}
+ finally{if(generation===fileLoadGenerations[source])$(source+'File').value=''}
+}
+$('hiveFile').onchange=e=>e.target.files.length&&load(e.target.files,'hive');$('weatherFile').onchange=e=>e.target.files.length&&load(e.target.files,'weather');
 function setup(){if(!hasLoadedSources())return;$('mappingCard').classList.remove('hidden');$('controlsCard').classList.remove('hidden');let html='';for(const source of sourceIds){const d=state[source];if(!d)continue;html+=`<div class="mapping-group"><div class="mapping-title"><h3>${source==='hive'?'蜂箱 SCD30':'外部氣象站（已合併多檔）'}</h3>${source==='weather'?`<label class="slide-switch" title="顯示／隱藏外部氣象站"><input id="weatherEnabled" type="checkbox" role="switch" aria-label="顯示外部氣象站" ${state.weatherEnabled?'checked':''}><span class="slider"></span></label>`:''}</div>`;for(const k of ['time','clock',...keys]){if(!(k in d.mapping))d.mapping[k]=k==='clock'?'':find(d.headers,k);html+=`<label>${k==='clock'?'獨立時分秒欄（日期與時間分欄時選擇）':label(k)}<select data-source="${source}" data-key="${k}"><option value="">不使用</option>${d.headers.map(h=>`<option value="${esc(h)}" ${h===d.mapping[k]?'selected':''}>${esc(h)}</option>`).join('')}</select></label>`}html+=`<label>日期格式<select data-format="${source}"><option value="auto" ${d.format==='auto'?'selected':''}>自動辨識</option><option value="ymd" ${d.format==='ymd'?'selected':''}>年／月／日（2026/07/04）</option><option value="dmy" ${d.format==='dmy'?'selected':''}>日／月／年（04/07/2026）</option><option value="mdy" ${d.format==='mdy'?'selected':''}>月／日／年（07/04/2026）</option></select></label></div>`}$('mappingGrid').innerHTML=html;document.querySelectorAll('[data-source]').forEach(e=>e.onchange=()=>{state[e.dataset.source].mapping[e.dataset.key]=e.value;setDates()});document.querySelectorAll('[data-format]').forEach(e=>e.onchange=()=>{state[e.dataset.format].format=e.value;setDates()});if($('weatherEnabled'))$('weatherEnabled').onchange=e=>{state.weatherEnabled=e.target.checked;if(hasLoadedSources())render()};setDates()}
 function parse(v,fmt='auto',base=null){
  if(v instanceof Date)return isNaN(v)?null:new Date(+v);
