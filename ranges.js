@@ -4,12 +4,17 @@ const rangeBlock=studioBlock(annotationGroup,'區間框選','拖曳框出重點�
 rangeBlock.id='rangeBlock';annotationGroup.prepend(rangeBlock);
 rangeBlock.insertAdjacentHTML('beforeend','<button id="rangeDrag" type="button" class="secondary" aria-pressed="false">在圖上拖曳框選</button><label>拖曳方式<select id="rangeKind"><option value="time">整段時間（全高度）</option><option value="box">矩形（時間與數值）</option></select></label><details id="rangeManual" class="settings-manual"><summary>輸入範圍／調整外框</summary><div class="range-fields"><div class="settings-field-row"><label><span id="rangeFromCaption">開始時間</span><input id="rangeFrom" aria-labelledby="rangeFromCaption"></label><label><span id="rangeToCaption">結束時間</span><input id="rangeTo" aria-labelledby="rangeToCaption"></label></div><label id="rangeAxisField">數值座標軸<select id="rangeAxis"></select></label><div class="settings-field-row"><label>數值下界（選填）<input id="rangeMin" type="number" step="any" placeholder="全高度"></label><label>數值上界（選填）<input id="rangeMax" type="number" step="any" placeholder="全高度"></label></div><label>區間名稱（選填）<input id="rangeLabel" maxlength="60" value="重點區間"></label><div class="settings-field-row"><label>外框與底色<input id="rangeColor" type="color" value="#b7791f"></label><label>底色濃度（%）<input id="rangeOpacity" type="number" min="0" max="40" step="1" value="12"></label></div><button id="rangeSave" type="button" class="primary">新增區間</button><button id="rangeCancel" type="button" class="secondary" hidden>取消編輯</button></div></details><p id="rangeStatus" class="studio-hint" role="status" aria-live="polite"></p><div id="rangeList"></div><button id="rangeClear" type="button" class="secondary">清除此圖的區間</button>');
 const rangeToolbar=document.createElement('button');rangeToolbar.id='selectRange';rangeToolbar.type='button';rangeToolbar.className='secondary';rangeToolbar.textContent='框選區間';rangeToolbar.setAttribute('aria-pressed','false');chartActions.appendChild(rangeToolbar);
+styleButton.after(rangeToolbar);
+const rangeSession=document.createElement('div');rangeSession.id='rangeSession';rangeSession.hidden=true;rangeSession.setAttribute('role','region');rangeSession.setAttribute('aria-label','連續區間框選');
+rangeSession.innerHTML='<p id="rangeSessionStatus" role="status" aria-live="polite"></p><button id="finishRangeSelection" type="button" class="primary">完成框選</button>';
+document.body.appendChild(rangeSession);$('finishRangeSelection').onclick=()=>{stopRangeSelection();rangeToolbar.focus({preventScroll:true})};
+rangeToolbar.setAttribute('aria-describedby','rangeSessionStatus');$('rangeDrag').setAttribute('aria-describedby','rangeSessionStatus');
 $('rangeManual').before($('rangeStatus'),$('rangeList'),$('rangeClear'));
 
 function rangeDomain(){return value('chartMode')==='co2hour'?'hours':value('chartMode')==='overlay'?'overlay':isRelativeComparison()?'elapsed':'calendar'}
 function rangeScope(canvas,config,domain){return JSON.stringify([value('workspaceMode'),value('chartMode'),domain,[...new Set(config.data.datasets.map(metricOf))].sort(),canvas.id])}
 function rangeCharts(){return [...state.charts,...(state.co2Chart?[state.co2Chart]:[])]}
-function rangeMessage(message,error=false){$('rangeStatus').textContent=message;$('rangeStatus').classList.toggle('has-error',error)}
+function rangeMessage(message,error=false){$('rangeStatus').textContent=message;$('rangeStatus').classList.toggle('has-error',error);if(rangeTarget&&error){$('rangeSessionStatus').textContent=message;$('rangeSessionStatus').classList.add('has-error')}}
 function rangeTimeText(domain,x){if(domain==='hours')return String(x).padStart(2,'0')+':00';if(domain==='elapsed')return String(Number((x/86400000+1).toFixed(6)));if(domain==='overlay')return String(Number(x.toFixed(6)));return local(new Date(x))}
 function rangeValue(domain,input){
  const text=input.value;if(!text.trim())throw Error('請輸入完整的區間起點與終點。');
@@ -51,7 +56,9 @@ function syncRanges(){
  if(!list.children.length){const empty=document.createElement('p');empty.className='studio-hint';empty.textContent='此圖尚未框選區間。';list.appendChild(empty)}
  $('rangeClear').disabled=!chart||!comparisonRanges.some(record=>record.scope===scope);
  for(const button of [rangeToolbar,$('rangeDrag')])button.setAttribute('aria-pressed',String(Boolean(rangeTarget)));
- rangeToolbar.textContent=rangeTarget?'取消框選（Esc）':'框選區間';$('rangeDrag').textContent=rangeTarget?'取消框選（Esc）':'在圖上拖曳框選';
+ rangeToolbar.textContent=rangeTarget?'完成框選（Esc）':'框選區間';$('rangeDrag').textContent=rangeTarget?'完成框選（Esc）':'在圖上連續框選';
+ rangeSession.hidden=!rangeTarget;
+ if(rangeTarget){$('rangeSessionStatus').textContent='框選中 · 此圖已有 '+comparisonRanges.filter(record=>record.scope===scope).length+' 個區間。繼續拖曳可新增，按 Esc 或「完成框選」結束。';$('rangeSessionStatus').classList.remove('has-error')}
 }
 function refreshRanges(){for(const chart of rangeCharts())if(chart.canvas)chart.draw();syncRanges()}
 function storeRange(record){
@@ -82,7 +89,7 @@ function startRangeSelection(){
  if(!flushFormatPreview())return;const chart=currentSettingsChart();if(!chart)return;
  try{rangeAppearance()}catch(error){rangeMessage(error.message,true);return}
  editingRange=null;rangeTarget=chart;chart.canvas.classList.add('range-selecting');
- if(!stylePanel.hidden)toggleStyle(false);syncRanges();rangeMessage('在圖表內按住拖曳以新增區間；按 Esc 可取消。');
+ if(!stylePanel.hidden)toggleStyle(false);syncRanges();rangeMessage('可在圖表內連續拖曳新增區間；按 Esc 或「完成框選」結束。');
  requestAnimationFrame(()=>{if(rangeTarget===chart)chart.canvas.scrollIntoView({block:'center',behavior:'instant'})});
 }
 rangeToolbar.onclick=$('rangeDrag').onclick=startRangeSelection;
@@ -130,7 +137,7 @@ function attachRangePointer(chart){
  const finish=event=>{
   const drag=rangeDrawing;if(drag?.chart!==chart||drag.pointerId!==event.pointerId)return;
   event.preventDefault();updateDraft(event);const record=drag.record,wide=Math.abs(drag.end.x-drag.start.x)>=4,tall=drag.kind!=='box'||Math.abs(drag.end.y-drag.start.y)>=4;
-  chart.$rangeSuppressClickUntil=performance.now()+400;if(canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);stopRangeSelection();
+  chart.$rangeSuppressClickUntil=performance.now()+400;if(canvas.hasPointerCapture(event.pointerId))canvas.releasePointerCapture(event.pointerId);rangeDrawing=null;chart.draw();
   if(wide&&tall)try{storeRange(record)}catch(error){rangeMessage(error.message,true)}else rangeMessage('框選範圍太小，請重新按住拖曳。');
  };
  const cancel=()=>{if(rangeDrawing?.chart===chart)stopRangeSelection()};

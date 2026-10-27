@@ -208,7 +208,7 @@ input[type=color]{min-width:46px;width:46px;height:36px;padding:3px;border:1px s
 @media(prefers-reduced-motion:reduce){button,.file-button{transition:none}}
 
 /* v22: explicit spacing and identical, resilient palette controls. */
-:root{--bee-studio-version:23.3;--paper:#f3f5f4;--ink:#203b36;--muted:#63756e}
+:root{--bee-studio-version:23.4;--paper:#f3f5f4;--ink:#203b36;--muted:#63756e}
 .release-warning{padding:18px;margin:16px 0;border:2px solid #ae5943;border-radius:10px;background:#fff4ec;color:#783822;line-height:1.8}
 #stylePanel{background:#f4f6f4;padding:20px;scroll-padding-top:88px}
 #stylePanel .style-header{background:#f4f6f4;padding:12px 0 18px;margin-bottom:16px;top:-20px}
@@ -371,6 +371,10 @@ body[data-stage="3"][data-workspace-page="plot"] main{padding-right:24px}
 .range-item-actions button{min-height:36px;font-size:12px;padding:6px 12px}
 #selectRange[aria-pressed=true],#rangeDrag[aria-pressed=true]{background:#fff2cc;border-color:#b7791f;color:#6d4716}
 canvas.range-selecting{cursor:crosshair;touch-action:none;user-select:none}
+#rangeSession{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:38;display:flex;align-items:center;gap:16px;width:max-content;max-width:calc(100vw - 32px);padding:12px 16px;border:1px solid #d0b46d;border-radius:12px;background:#fff9e9;box-shadow:0 6px 24px #203d3524}
+#rangeSessionStatus{margin:0;max-width:440px;font-size:13px;line-height:1.6;color:#72521c}
+#rangeSessionStatus.has-error{color:#9c3027}
+#rangeSession button{flex:0 0 auto}
 @media(max-width:600px){.chart-actions #selectRange{grid-column:1/-1}}
 
 
@@ -397,6 +401,124 @@ body[data-mode=quick] .experiment-card-heading label{font-size:0}
 body[data-mode=quick] .experiment-card-heading label::before{content:'資料名稱（選填）';font-size:14px}
 body[data-mode=quick] .experiment-card-heading input{font-size:14px}
 @media(max-width:600px){.home-modes{padding:18px}.home-mode-heading{gap:6px}.home-mode-options{grid-template-columns:minmax(0,1fr);gap:12px}.home-mode-options>button{padding:16px;gap:6px}.home-mode-options>button[aria-pressed=true]{padding:15px}.home-mode-options strong{font-size:18px}.home-mode-options span:not(.mode-tag){font-size:13px}#workspaceModeBar{align-items:flex-start;padding:12px}#workspaceModeBar button{max-width:140px}#quickPeriod .period-panel{grid-template-columns:minmax(0,1fr)}}
+
+
+/* SOURCE: theme.css */
+/* Shared interface surfaces, spacing and action hierarchy across all workflows. */
+:root{--bee-theme-version:23.4;--ink:#203b36;--muted:#60736b;--paper:#f3f6f4;--card:#fff;--line:#d9e3dd;--green:#2b6252;--surface-soft:#edf4ef;--control-border:#b7cabf;--ui-radius:12px}
+body{background:var(--paper);color:var(--ink);line-height:1.65}
+main,.topbar{max-width:1280px}
+.topbar{padding:16px 24px;gap:20px;border-bottom:1px solid var(--line)}
+.topbar h1{font-size:20px;white-space:normal}
+main{padding:0 24px 40px}
+h2{font-size:22px}h3{font-size:17px}h4{font-size:14px}
+button,.file-button{min-height:44px;padding:10px 14px;border:1px solid var(--control-border);border-radius:8px;background:var(--card);color:var(--green);font-size:14px;font-weight:600;line-height:1.45}
+button:hover:not(:disabled),.file-button:hover{background:var(--surface-soft);border-color:#769d88}
+button.primary{background:var(--green);border-color:var(--green);color:#fff}
+button.primary:hover:not(:disabled){background:#214e42;border-color:#214e42}
+input:not([type=checkbox]):not([type=color]):not([type=file]),select{min-height:44px;border:1px solid var(--control-border);border-radius:8px;padding:10px 12px;font-size:14px;background:var(--card);color:var(--ink)}
+input:disabled,select:disabled{background:#edf1ee;color:#75837c}
+input[type=checkbox]{accent-color:var(--green)}
+.topbar .page-tabs{gap:8px}
+.topbar .page-tabs button,.step-pages button{background:#fff;border-color:var(--line);color:var(--muted);box-shadow:none}
+.topbar .page-tabs button:hover,.step-pages button:hover{background:var(--surface-soft);border-color:#769d88;color:var(--green)}
+.topbar .page-tabs button[aria-selected=true],.step-pages button[aria-current=step]{background:var(--green);border-color:var(--green);color:#fff}
+.topbar .page-tabs button[aria-selected=true]:hover,.step-pages button[aria-current=step]:hover{background:#214e42;color:#fff}
+.step-navigation{background:#fff;border-top:1px solid var(--line);box-shadow:0 -4px 18px #203d3508}
+.step-pages{gap:8px}
+.card,.chart-card,.experiment-card{border:1px solid var(--line);border-radius:var(--ui-radius);background:var(--card);box-shadow:0 2px 10px #203d3504}
+.card{padding:22px;margin-bottom:20px}
+.section-heading{align-items:center;margin-bottom:18px;padding-bottom:16px;gap:16px}
+.section-heading h2{font-size:22px;margin:0}
+.section-heading p{margin:0;color:var(--muted);font-size:13px}
+.home-modes{padding:20px;background:var(--card)}
+.home-mode-heading{margin-bottom:14px;gap:12px}
+.home-mode-heading h2{font-size:22px}
+.home-mode-options{gap:16px}
+.home-mode-options>button{padding:16px;gap:7px;border-radius:10px;border-color:var(--line)}
+.home-mode-options>button[aria-pressed=true]{padding:15px;border-color:var(--green);background:var(--surface-soft);box-shadow:none}
+.home-mode-options strong{font-size:18px}
+.home-mode-options .mode-tag{background:#e7eee9;color:var(--green)}
+.purpose-panel{padding:18px 20px;background:var(--surface-soft);gap:12px 24px;margin-top:16px}
+.purpose-panel h2{font-size:22px;margin-bottom:6px}
+.purpose-panel p{font-size:13px}
+.purpose-panel #purposeHint{padding-top:10px}
+#sourcePanel{margin-top:12px}
+#sourcePanel>summary{padding:10px 0 16px;font-size:17px}
+.quick-guide{margin:16px 0 4px;font-size:13px}
+.upload-grid{gap:20px;margin-bottom:18px;padding:0;border:0;background:transparent;box-shadow:none}
+.experiment-card{padding:20px}
+.experiment-card-heading{margin-bottom:16px;padding-bottom:16px;gap:12px}
+.experiment-card-heading label{font-size:13px}
+.experiment-badge,#peerExperimentCard .experiment-badge{width:40px;flex-basis:40px;height:40px;border-radius:10px;background:#e8f0eb;color:var(--green);font-size:18px}
+.experiment-upload h3{font-size:16px;margin:0 0 6px}
+.experiment-upload p{margin-bottom:10px}
+.experiment-upload .file-button{border-style:dashed;background:#f8fbf8;border-color:#8cad99;margin:12px 0;text-align:center}
+.experiment-upload .file-button:hover{background:var(--surface-soft)}
+.experiment-upload .file-status{min-height:22px;color:var(--muted)}
+.experiment-data-summary{min-height:42px;margin:10px 0;font-size:12px}
+.mapping-shortcut{min-height:40px;font-size:13px;padding:8px 12px}
+.experiment-weather-toggle{margin-top:16px;padding:10px 12px;background:#f8faf8}
+.experiment-station{background:#f8faf8;border-color:var(--line);padding:14px}
+body[data-mode=quick] .experiment-card{max-width:none}
+body[data-mode=quick] .experiment-card-heading input{max-width:640px}
+#workspaceModeBar{background:#fff;padding:10px 14px;margin:14px 0 18px;border-color:var(--line)}
+#workspaceModeBar button{min-height:40px;font-size:13px}
+.chart-heading{gap:12px;margin-bottom:14px}
+.chart-heading h2{display:block;font-size:18px}
+.chart-heading .chart-actions{gap:8px;flex:1;justify-content:flex-end}
+body[data-workspace-page=plot] #openStyle{background:#fff;color:var(--green);border-color:var(--control-border)}
+.chart-actions #downloadCurrentPng{background:var(--green);border-color:var(--green);color:#fff}
+.chart-actions #downloadCurrentPng:hover{background:#214e42}
+.experiment-context{gap:12px;margin:14px 0}
+.experiment-context-card{background:#edf3ef;border:1px solid var(--line);border-left:4px solid #678c79;padding:10px 14px;border-radius:8px;gap:3px}
+.experiment-context-card:nth-child(2){background:#f5f7f5;border-left-color:#91a69a}
+.experiment-context-card strong{font-size:13px}.experiment-context-card span{font-size:12px}
+.overview-controls{padding:16px;gap:12px;margin:14px 0 18px;background:var(--surface-soft);border-color:var(--line);border-radius:10px}
+.overview-controls>label{font-size:13px}
+.overview-controls select{font-size:14px}
+.profile-method-help{font-size:12px;line-height:1.65;padding-top:10px}
+.chart-card{padding:18px}
+.chart-card h3{font-size:17px;margin-bottom:14px}
+.line-legend button{border-radius:6px;color:var(--muted)}
+.line-legend button:hover{background:var(--surface-soft)}
+.editor-section,.method,.profile-coverage{border-color:var(--line);border-radius:10px}
+#controlsCard>details>summary,.profile-coverage>summary,.method>summary{font-size:14px;color:var(--green);line-height:1.6}
+.period-panel,.controls-grid,.query-fields,.query-controls{gap:16px}
+.query-fields label,.query-controls label,.anomaly-options label{font-size:13px}
+.query-table-wrap{border-color:var(--line);border-radius:10px}
+.query-table-wrap th{background:var(--surface-soft);color:var(--ink)}
+.query-table-wrap td,.query-table-wrap th{padding:11px 14px;border-color:var(--line)}
+.query-table-wrap tbody tr:nth-child(even){background:#f8faf8}
+.query-actions,.anomaly-actions,.actions{gap:10px}
+.anomaly-note{background:var(--surface-soft);color:var(--ink);border:1px solid var(--line)}
+#stylePanel{background:#f6f8f6;border-color:var(--line)}
+#stylePanel .style-header{background:transparent;padding:16px 18px 8px}
+#settingsTabs{border-color:var(--line)}
+#settingsTabs button[aria-selected=true]{background:#e5eee8;border-color:#94ad9f;color:var(--green)}
+#settingsScroll .studio-group{background:#fff;border-radius:10px}
+#settingsScroll .studio-block{padding:16px;gap:12px}
+#stylePanel label.check-tile{min-height:44px;padding:10px 12px;border-radius:8px}
+#stylePanel label.check-tile:has(input:checked){background:var(--surface-soft);border-color:#759781}
+#stylePanel .studio-feedback{background:#f0f5f1;border-color:var(--line)}
+#rangeSession button{min-height:40px}
+@media(max-width:900px){.chart-heading{align-items:flex-start}.chart-heading .chart-actions{flex-basis:100%;justify-content:flex-start}}
+@media(max-width:600px){
+ main{padding:0 16px 32px}.topbar{padding:14px 16px;gap:12px}.topbar h1{font-size:18px}
+ .topbar .page-tabs{gap:6px}.topbar .page-tabs button{min-height:44px;padding:9px 8px;font-size:13px}
+ .card{padding:16px}.home-modes,.purpose-panel{padding:16px}.home-mode-heading{margin-bottom:12px}.home-mode-heading h2,.purpose-panel h2{font-size:20px}
+ .home-mode-options{gap:10px}.home-mode-options>button{padding:14px;gap:6px}.home-mode-options>button[aria-pressed=true]{padding:13px}
+ .experiment-card{padding:16px}.experiment-card-heading{padding-bottom:14px;margin-bottom:14px}
+ .section-heading h2{font-size:20px}.section-heading{gap:12px;align-items:flex-start}
+ .experiment-context{gap:8px;margin:12px 0}.experiment-context-card{padding:9px 12px}
+ .chart-heading .chart-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:8px}
+ .chart-actions #selectRange,.chart-actions #downloadCsv{grid-column:auto}
+ .chart-heading .chart-actions button{min-height:44px;padding:10px 6px;font-size:13px}
+ .overview-controls{padding:14px;gap:12px;margin:12px 0 16px}.overview-controls>label{font-size:12px}.overview-controls select{font-size:13px;padding:10px 8px}
+ .chart-card{padding:14px}.chart-card h3{font-size:16px}
+ #workspaceModeBar{padding:10px 12px;align-items:center}#workspaceModeBar button{max-width:145px;font-size:12px}
+ #settingsScroll .studio-block{padding:14px}#rangeSession{gap:10px;padding:10px 12px;top:10px}#rangeSessionStatus{font-size:12px}
+}
 </style>
 <!-- END BUNDLED SITE STYLES -->
     
@@ -481,36 +603,36 @@ body[data-mode=quick] .experiment-card-heading input{font-size:14px}
     <footer>蜂箱環境資料分析台 · 正在確認網站版本</footer>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="app.js?v=23.3"></script>
-    <script src="experiment-model.js?v=23.3"></script>
-    <script src="points.js?v=23.3"></script>
-    <script src="research.js?v=23.3"></script>
-    <script src="time-axis.js?v=23.3"></script>
-    <script src="workspace.js?v=23.3"></script>
-    <script src="layout.js?v=23.3"></script>
-    <script src="query.js?v=23.3"></script>
-    <script src="query-ui.js?v=23.3"></script>
-    <script src="ease.js?v=23.3"></script>
-    <script src="tick-controls.js?v=23.3"></script>
-    <script src="exceedance.js?v=23.3"></script>
-    <script src="query-actions.js?v=23.3"></script>
-    <script src="rainfall.js?v=23.3"></script>
-    <script src="anomalies.js?v=23.3"></script>
-    <script src="workflow.js?v=23.3"></script>
-    <script src="panel-polish.js?v=23.3"></script>
-    <script src="hive-import.js?v=23.3"></script>
-    <script src="comparison.js?v=23.3"></script>
-    <script src="studio.js?v=23.3"></script>
-    <script src="experiments.js?v=23.3"></script>
-    <script src="settings-tabs.js?v=23.3"></script>
-    <script src="quick-mode.js?v=23.3"></script>
-    <script src="ranges.js?v=23.3"></script>
-    <script src="asset-check.js?v=23.3"></script>
+    <script src="app.js?v=23.4"></script>
+    <script src="experiment-model.js?v=23.4"></script>
+    <script src="points.js?v=23.4"></script>
+    <script src="research.js?v=23.4"></script>
+    <script src="time-axis.js?v=23.4"></script>
+    <script src="workspace.js?v=23.4"></script>
+    <script src="layout.js?v=23.4"></script>
+    <script src="query.js?v=23.4"></script>
+    <script src="query-ui.js?v=23.4"></script>
+    <script src="ease.js?v=23.4"></script>
+    <script src="tick-controls.js?v=23.4"></script>
+    <script src="exceedance.js?v=23.4"></script>
+    <script src="query-actions.js?v=23.4"></script>
+    <script src="rainfall.js?v=23.4"></script>
+    <script src="anomalies.js?v=23.4"></script>
+    <script src="workflow.js?v=23.4"></script>
+    <script src="panel-polish.js?v=23.4"></script>
+    <script src="hive-import.js?v=23.4"></script>
+    <script src="comparison.js?v=23.4"></script>
+    <script src="studio.js?v=23.4"></script>
+    <script src="experiments.js?v=23.4"></script>
+    <script src="settings-tabs.js?v=23.4"></script>
+    <script src="quick-mode.js?v=23.4"></script>
+    <script src="ranges.js?v=23.4"></script>
+    <script src="asset-check.js?v=23.4"></script>
     <script>
       // Independent guard: an old asset-check.js must not silently accept mixed releases.
-      if(document.documentElement.dataset.uiRelease!=='23.3' && !document.querySelector('[role="alert"]')){
+      if(document.documentElement.dataset.uiRelease!=='23.4' && !document.querySelector('[role="alert"]')){
         const warning=document.createElement('div');warning.setAttribute('role','alert');warning.className='release-warning';
-        warning.textContent='網站檔案版本不一致，部分功能可能無法使用。請完整更新 v23.3 檔案，再重新整理。';
+        warning.textContent='網站檔案版本不一致，部分功能可能無法使用。請完整更新 v23.4 檔案，再重新整理。';
         document.querySelector('main').prepend(warning);
       }
     </script>

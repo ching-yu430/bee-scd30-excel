@@ -49,7 +49,8 @@ class ComparisonRangeTests(unittest.TestCase):
         }''', {'hours': [first, last], 'y': [y1, y2]})
 
     def drag_range(self, first='18:00', last='00:00', y1=.3, y2=.7):
-        self.page.locator('#selectRange').click()
+        if self.page.locator('#selectRange').get_attribute('aria-pressed') != 'true':
+            self.page.locator('#selectRange').click()
         self.page.wait_for_function('currentSettingsChart().width===Math.round(currentSettingsChart().canvas.getBoundingClientRect().width)')
         self.page.locator('#co2DailyChart').scroll_into_view_if_needed()
         a, b = self.coordinates(first, last, y1, y2)
@@ -110,6 +111,27 @@ class ComparisonRangeTests(unittest.TestCase):
         self.assertEqual(self.page.evaluate('window.pngRanges.length'), 1)
         self.assertIn('夜間差異', self.page.evaluate('window.pngLabels'))
         self.assertEqual(self.page.evaluate('Object.keys(Chart.instances).length'), 1)
+
+    def test_multiple_mouse_ranges_in_one_session_and_after_restarting(self):
+        original = self.page.evaluate('JSON.stringify(state.output)')
+        for count, (start, end) in enumerate([('10:00', '12:00'), ('18:00', '00:00'), ('03:00', '05:00')], 1):
+            self.drag_range(start, end)
+            self.assertEqual(self.page.evaluate('comparisonRanges.length'), count)
+            self.assertEqual(self.page.locator('#selectRange').get_attribute('aria-pressed'), 'true')
+            self.assertTrue(self.page.locator('#rangeSession').is_visible())
+            self.assertIn(str(count) + ' 個區間', self.page.locator('#rangeSessionStatus').inner_text())
+        self.assertEqual(self.page.evaluate('Object.keys(Chart.instances).length'), 1)
+        self.page.locator('#finishRangeSelection').click()
+        self.assertFalse(self.page.locator('#rangeSession').is_visible())
+        self.drag_range('14:00', '16:00')
+        self.assertEqual(self.page.evaluate('comparisonRanges.length'), 4)
+        self.page.keyboard.press('Escape')
+        self.assertEqual(self.page.locator('#selectRange').get_attribute('aria-pressed'), 'false')
+        self.assertEqual(self.page.evaluate('JSON.stringify(state.output)'), original)
+        self.open_ranges()
+        with self.page.expect_download() as download:
+            self.expose('#saveSettings').click()
+        self.assertEqual(len(json.loads(Path(download.value.path()).read_text())['highlights']), 4)
 
     def test_reverse_rectangle_drag_and_cancel(self):
         self.open_ranges()
@@ -209,5 +231,12 @@ class ComparisonRangeTests(unittest.TestCase):
         self.page.wait_for_function('comparisonRanges.length===1')
         self.assertEqual(self.page.evaluate('comparisonRanges[0].x1'), 9)
         self.assertEqual(self.page.evaluate('comparisonRanges[0].x2'), 11)
+        a, b = self.coordinates('11:00', '13:00', .4, .5)
+        cdp.send('Input.dispatchTouchEvent', {'type': 'touchStart', 'touchPoints': [{'x': a['x'], 'y': a['y']}]})
+        cdp.send('Input.dispatchTouchEvent', {'type': 'touchMove', 'touchPoints': [{'x': b['x'], 'y': b['y']}]})
+        cdp.send('Input.dispatchTouchEvent', {'type': 'touchEnd', 'touchPoints': []})
+        self.page.wait_for_function('comparisonRanges.length===2')
+        self.assertEqual(self.page.locator('#co2DailyChart').evaluate('canvas=>getComputedStyle(canvas).touchAction'), 'none')
+        self.page.locator('#finishRangeSelection').click()
         self.assertEqual(self.page.locator('#co2DailyChart').evaluate('canvas=>getComputedStyle(canvas).touchAction'), 'auto')
         self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth'))

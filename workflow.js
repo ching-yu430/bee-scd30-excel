@@ -11,7 +11,7 @@ $('periodMode').onchange=()=>{if(value('periodMode')==='days'){syncPeriodUI();ap
 $('dayStart').onchange=()=>{if(!value('dayEnd')||value('dayEnd')<value('dayStart'))$('dayEnd').value=value('dayStart');applyDayPeriod()};$('dayEnd').onchange=applyDayPeriod;
 $('singleDay').onclick=()=>{$('dayEnd').value=value('dayStart');applyDayPeriod()};
 const baseRenderWorkflow=render;render=function(){if(periodSnapshot!==value('startDate')+'|'+value('endDate')){const whole=/T00:00(?::00)?$/.test(value('startDate'))&&value('endDate').endsWith('T23:59:59.999');if(!whole)$('periodMode').value='exact';syncPeriodUI()}baseRenderWorkflow();syncChartPicker()};
-const baseSetupWorkflow=setup;setup=function(){baseSetupWorkflow();syncPeriodUI();if(value('periodMode')==='days')applyDayPeriod();sourcePanel.open=true;$('sourceTimeHint')?.remove();showWorkspaceStage(1,false)};
+const baseSetupWorkflow=setup;setup=function(){const alreadyImporting=workspacePage==='plot'&&workspaceStage===1;baseSetupWorkflow();syncPeriodUI();if(value('periodMode')==='days')applyDayPeriod();sourcePanel.open=true;$('sourceTimeHint')?.remove();if(!alreadyImporting)showWorkspaceStage(1,false)};
 document.querySelectorAll('[data-range]').forEach(button=>{const before=button.onclick;button.onclick=()=>{before?.();syncPeriodUI();if(value('periodMode')==='days')applyDayPeriod()}});
 const workspaceStatus=document.createElement('p');workspaceStatus.id='workflowStatus';workspaceStatus.setAttribute('role','status');tabs.after(workspaceStatus);
 document.querySelector('.hero').hidden=true;guide.hidden=true;formatStatus.hidden=true;$('emptyPlot').hidden=true;
