@@ -119,7 +119,7 @@ createChart=function(canvas,config){
 };
 const resetBeforeComparison=applyDefaultFormat;applyDefaultFormat=function(){resetBeforeComparison();for(const key of keys)for(const prefix of Object.values(legendPrefixes))$(prefix+key).value=''};
 // Step two is a draft: only render after the user proceeds to step three.
-applyFormat=function(){if(workspacePage==='plot'&&workspaceStage===2){markDirty();return}if(state.hive||state.peer||state.weather)render()};
+applyFormat=function(){if(workspacePage==='plot'&&workspaceStage===2){markDirty();return}if(hasLoadedSources())render()};
 for(const id of ['xTickInterval','xTickCount','xTickUnit'])$(id).onchange=()=>{syncTickControls();markDirty();applyFormat()};
 const stageBeforeComparison=showWorkspaceStage;showWorkspaceStage=function(step,generate=true){if(step!==3||!generate){stageBeforeComparison(step,generate);return}workspaceStatus.textContent='正在彙整資料與繪圖…';$('sourceNext').disabled=true;setTimeout(()=>{try{stageBeforeComparison(step,generate)}finally{$('sourceNext').disabled=false}},40)};
 modeDescriptions.difference='實驗 A減去比較來源；只配對相同時間桶，不插補缺值。';

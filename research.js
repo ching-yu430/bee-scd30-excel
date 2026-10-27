@@ -105,7 +105,7 @@ const v6Render=render;
 render=function(){syncFilters();$('filterStage').disabled=value('chartMode')==='co2hour';$('analysisStatus').textContent='';try{validateSettings()}catch(e){$('analysisStatus').textContent=e.message;return}v6Render();if(!state.output.length){$('chartCard').classList.remove('hidden');return}state.lastContext=chartContext();state.renderMode=value('chartMode');state.dirty=false;$('analysisStatus').textContent='已更新：'+chartContext();$('qualitySummary').innerHTML+=`<p class="diagnostics">平均後篩選排除 ${state.stats.filteredBins||0} 個時間桶。${value('chartMode')==='difference'?'內外差值只配對相同時間桶；小於每小時的尺度自動改為每小時。':value('chartMode')==='overlay'?'不同日期以不同顏色表示，圖例可逐日開關。':''}</p>`;};
 function markDirty(){state.dirty=true;syncFilters();$('analysisStatus').textContent='設定已變更，請按底部「更新並看圖」。';}
 function ensureCurrent(){if(!flushFormatPreview())return false;if(state.dirty){render();return !state.dirty&&Boolean(state.output.length)}return Boolean(state.output.length)}
-function applyFormat(){if(state.hive||state.peer||state.weather)render()}
+function applyFormat(){if(hasLoadedSources())render()}
 function resetFilterValues(){for(const k of keys){$(k+'Op').value='none';$(k+'Min').value='';$(k+'Max').value=''}$('filterSource').value='both';$('filterStage').value='raw';syncFilters()}
 function applyDefaultFormat(){for(const key of keys)state.metrics[key].color=defaultMetricColors[key];for(const [id,v] of Object.entries(formatDefaults)){if(typeof v==='boolean')$(id).checked=v;else $(id).value=v}for(const k of keys){for(const part of ['axisMin-','axisMax-','axisStep-'])$(part+k).value='';$('innerName-'+k).value='內部'+label(k);$('outerName-'+k).value='外部'+label(k)}selectedVisible.clear()}
 function csvCell(v){return '"'+String(v??'').replaceAll('"','""')+'"'}

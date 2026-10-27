@@ -8,6 +8,17 @@ sourcePanel.querySelector(':scope > summary').textContent='加入實驗資料';
 mappingFold.querySelector(':scope > summary').textContent='檔案格式與欄位配對（需要時調整）';
 const uploadPanels=[...uploads.querySelectorAll('.upload-panel')];
 const experimentCards=new Map();
+function stationUpload(source){
+ const upload=document.createElement('div');upload.className='experiment-upload station-upload';
+ const hint=document.createElement('p');hint.className='station-upload-hint';hint.textContent='支援 CSV／Excel，可多選檔案自動合併。';
+ const button=document.createElement('label');button.className='file-button';button.tabIndex=0;button.setAttribute('role','button');button.textContent='選擇氣象站檔案';
+ const input=$(source+'File')||document.createElement('input');input.id=source+'File';input.type='file';input.accept='.csv,.xlsx,.xls';input.multiple=true;
+ const status=$(source+'Status')||document.createElement('p');status.id=source+'Status';status.className='file-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');if(!status.textContent)status.textContent='尚未選擇檔案';
+ button.appendChild(input);button.onkeydown=event=>{if(['Enter',' '].includes(event.key)){event.preventDefault();input.click()}};
+ input.onchange=event=>{if(event.target.files.length)load(event.target.files,source)};
+ upload.append(hint,button,status);return upload;
+}
+
 for(const [index,source]of experimentSources.entries()){
  const card=document.createElement('article');card.className='experiment-card';card.id=source+'ExperimentCard';
  card.innerHTML='<div class="experiment-card-heading"><span class="experiment-badge">'+(index?'B':'A')+'</span><label>實驗名稱<input id="'+source+'Name" maxlength="60" value="實驗 '+(index?'B':'A')+'" placeholder="例如：第一次實驗"></label></div>';
@@ -17,12 +28,11 @@ for(const [index,source]of experimentSources.entries()){
  const mappingButton=document.createElement('button');mappingButton.type='button';mappingButton.className='secondary mapping-shortcut';mappingButton.textContent='檢查檔案與欄位';mappingButton.onclick=()=>{mappingFold.open=true;mappingFold.scrollIntoView({behavior:'smooth',block:'start'})};card.appendChild(mappingButton);
  const weatherToggle=document.createElement('label');weatherToggle.className='check-tile experiment-weather-toggle';weatherToggle.innerHTML='<input id="'+source+'UseWeather" type="checkbox">搭配這次實驗的氣象站資料';card.appendChild(weatherToggle);
  const station=document.createElement('details');station.id=source+'StationFiles';station.className='experiment-station';station.open=true;station.innerHTML='<summary>氣象站檔案</summary><p class="help-text">請使用這次實驗期間與地點對應的觀測資料。</p>';
- if(index===0){const files=uploadPanels[2];files.className='experiment-upload';files.querySelector('.source-icon').remove();files.querySelector('h3').remove();station.appendChild(files)}
- else station.insertAdjacentHTML('beforeend','<label class="file-button" tabindex="0" role="button">選擇氣象站檔案<input id="weatherPeerFile" type="file" accept=".csv,.xlsx,.xls" multiple></label><p id="weatherPeerStatus" class="file-status">尚未選擇檔案</p>');
+ station.appendChild(stationUpload(index?'weatherPeer':'weather'));
  card.appendChild(station);uploads.appendChild(card);experimentCards.set(source,card);
 }
-$('weatherPeerFile').onchange=event=>{if(event.target.files.length)load(event.target.files,'weatherPeer')};
-$('weatherPeerFile').closest('label').onkeydown=event=>{if(['Enter',' '].includes(event.key)){event.preventDefault();$('weatherPeerFile').click()}};
+uploadPanels[2].remove();
+
 
 const rangePanel=document.createElement('section');rangePanel.id='experimentRanges';rangePanel.className='experiment-ranges';
 for(const [index,source]of experimentSources.entries()){
@@ -64,6 +74,7 @@ function syncExperimentData(){
   summary.textContent=bounds?local(new Date(bounds.min)).replace('T',' ')+' ～ '+local(new Date(bounds.max)).replace('T',' ')+' · '+state[source].rows.length.toLocaleString()+' 筆可用紀錄':state[source]?'已讀取檔案，尚無有效時間；請檢查日期格式與欄位。':'尚未加入實驗資料';
   if(state[source]?.batches){const data=state[source],hasIssues=data.qualityIssues.length||data.timeIssues.length||data.importStats.conflicts;$(source+'Status').textContent='已加入 '+data.batches.length+' 個檔案'+(hasIssues?'；部分資料需檢查，詳見欄位配對。':'；品質與時間檢查通過。')}
   $(source+'RangeTitle').textContent=sourceName(source);
+  const station=source==='hive'?'weather':'weatherPeer';$(station+'File').closest('label').setAttribute('aria-label','選擇'+sourceName(station)+'檔案');
  }
  for(const source of sourceIds)for(const key of keys){const input=$(legendPrefixes[source]+key);if(input)input.placeholder=sourceName(source)+' '+label(key)}
  document.querySelectorAll('.rain-source > strong').forEach((heading,index)=>heading.textContent=sourceName(sourceIds[index]));
@@ -79,15 +90,7 @@ setDates=function(){
 };
 const originalExperimentSetup=setup;
 setup=function(){originalExperimentSetup();syncExperimentData();syncExperimentUI()};
-function stationBMappings(){
- const data=state.weatherPeer;if(!data)return;
- if(!Object.hasOwn(data.mapping,'rain'))data.mapping.rain=data.headers.find(header=>/降水量|降雨量|雨量|precp|precipitation/i.test(header))||'';
- const card=document.querySelector('[data-source="weatherPeer"]')?.closest('.mapping-group');if(!card)return;
- card.querySelector('h3').textContent=sourceName('weatherPeer');
- const field=document.createElement('label');field.textContent='降水量（mm）';const select=document.createElement('select');select.dataset.source='weatherPeer';select.dataset.key='rain';
- for(const header of ['',...data.headers]){const option=document.createElement('option');option.value=header;option.textContent=header||'不使用';option.selected=header===data.mapping.rain;select.appendChild(option)}
- select.onchange=()=>{data.mapping.rain=select.value;markDirty()};field.appendChild(select);card.appendChild(field);
-}
+function stationBMappings(){addRainfallMapping('weatherPeer')}
 const setupBeforeStationB=setup;setup=function(){setupBeforeStationB();stationBMappings()};
 function syncExperimentUI(){
  const different=comparisonPurpose()==='different',stationOnly=comparisonPurpose()==='weather',mode=value('chartMode'),profile=mode==='co2hour';
