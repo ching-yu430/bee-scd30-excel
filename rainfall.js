@@ -18,6 +18,8 @@ function addRainfallMapping(source){
  if(!Object.hasOwn(data.mapping,'rain'))data.mapping.rain=data.headers.find(header=>/降水量|降雨量|雨量|precp|precipitation/i.test(header))||'';
  const card=document.querySelector('[data-source="'+source+'"]')?.closest('.mapping-group');if(!card)return;
  card.querySelector('h3').textContent=sourceName(source);
+ // Source switches live with the experiment and chart, rather than only in station A's mapping.
+ card.querySelector('.slide-switch')?.remove();
  const field=document.createElement('label');field.textContent='降水量（mm）';const select=document.createElement('select');select.dataset.source=source;select.dataset.key='rain';
  for(const header of ['',...data.headers]){const option=document.createElement('option');option.value=header;option.textContent=header||'不使用';option.selected=header===data.mapping.rain;select.appendChild(option)}
  select.onchange=()=>{data.mapping.rain=select.value;markDirty()};field.appendChild(select);card.querySelector('.mapping-value-fields').appendChild(field);
