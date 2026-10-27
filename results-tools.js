@@ -3,35 +3,27 @@ function sourceLineColor(source,key){return value('sourceColorValue-'+source+'-'
 function sourceIsShown(source){return !sourceIds.includes(source)||checked('sourceShown-'+source)}
 function resultCharts(){return [...state.charts,...(state.co2Chart?[state.co2Chart]:[])]}
 function datasetSource(dataset){return String(dataset.sourceId||'').split('|')[0]}
-const resultsTools=document.createElement('section');resultsTools.id='resultsTools';resultsTools.setAttribute('aria-label','來源顯示、顏色與下載');
-resultsTools.innerHTML='<div class="results-tools-heading"><h3>顯示來源與線色</h3><button id="showAllSources" class="secondary" type="button">顯示全部來源</button></div><p class="help-text">一鍵顯示或隱藏整組來源；點色塊可分別調色。只影響圖表與 PNG，資料 CSV 保留所選來源。</p><div id="resultSources" class="result-sources"></div><div id="resultDownloads" class="result-downloads"><p id="resultDownloadContext" role="status"></p></div>';
+const resultsTools=document.createElement('section');resultsTools.id='resultsTools';resultsTools.setAttribute('aria-label','顯示來源');
+resultsTools.innerHTML='<div id="resultSources" class="result-sources"><span class="result-source-heading">顯示來源</span></div><button id="showAllSources" class="secondary" type="button">全部顯示</button>';
 overviewControls.after(resultsTools);
 const sourceColorInputs=new Map();
 for(const source of sourceIds){
- const row=document.createElement('article');row.className='result-source';row.id='resultSource-'+source;
- const toggle=document.createElement('label');toggle.className='result-source-toggle';
+ const row=document.createElement('label');row.className='result-source';row.id='resultSource-'+source;
  const input=document.createElement('input');input.type='checkbox';input.id='sourceShown-'+source;input.checked=true;
- const name=document.createElement('span');name.className='result-source-name';toggle.append(input,name);row.appendChild(toggle);
+ const name=document.createElement('span');name.className='result-source-name';row.append(input,name);$('resultSources').appendChild(row);
  settingIds.push(input.id);input.onchange=()=>{applyAllSourceVisibility();syncResultTools()};
- const colors=document.createElement('div');colors.className='result-source-colors';row.appendChild(colors);
  for(const key of keys){
-  const stored=document.createElement('input');stored.type='hidden';stored.id='sourceColorValue-'+source+'-'+key;colors.appendChild(stored);settingIds.push(stored.id);
-  for(const [location,host]of [['result',colors],['panel',null]]){
-   const field=document.createElement('label');field.className='source-color-control';field.innerHTML='<span>'+label(key)+'</span>';
-   const color=document.createElement('input');color.type='color';color.id=location+'Color-'+source+'-'+key;color.value=state.metrics[key].color;
-   color.oninput=()=>{stored.value=color.value;syncResultColors();queueFormatPreview()};color.onchange=()=>{stored.value=color.value;flushFormatPreview();syncResultTools()};field.appendChild(color);
-   if(host)host.appendChild(field);else{
-    const legendField=$(legendPrefixes[source]+key).closest('label'),pair=document.createElement('div');pair.className='source-legend-edit';legendField.before(pair);pair.append(legendField,field);
-   }
-   const inputs=sourceColorInputs.get(source+'|'+key)||[];inputs.push(color);sourceColorInputs.set(source+'|'+key,inputs);
-  }
+  const stored=document.createElement('input');stored.type='hidden';stored.id='sourceColorValue-'+source+'-'+key;settingIds.push(stored.id);
+  const field=document.createElement('label');field.className='source-color-control';field.innerHTML='<span>'+label(key)+'</span>';
+  const color=document.createElement('input');color.type='color';color.id='panelColor-'+source+'-'+key;color.value=state.metrics[key].color;
+  color.oninput=()=>{stored.value=color.value;syncResultColors();queueFormatPreview()};color.onchange=()=>{stored.value=color.value;flushFormatPreview();syncResultTools()};field.appendChild(color);
+  const legendField=$(legendPrefixes[source]+key).closest('label'),pair=document.createElement('div');pair.className='source-legend-edit';legendField.before(pair);pair.append(legendField,field,stored);
+  sourceColorInputs.set(source+'|'+key,[color]);
  }
- const reset=document.createElement('button');reset.type='button';reset.className='secondary reset-source-color';reset.textContent='預設色';reset.title='還原這組來源各指標的預設顏色';
- reset.onclick=()=>{for(const key of keys)$('sourceColorValue-'+source+'-'+key).value='';syncResultColors();flushFormatPreview()};colors.appendChild(reset);
- $('resultSources').appendChild(row);
 }
-// Base metric colors remain useful defaults; per-source edits override only that source.
-lineBlock.querySelector('.studio-hint').textContent='下方設定指標預設色；各來源可在圖例名稱旁或圖表上方分別調色。';
+lineBlock.querySelector('.studio-hint').textContent='各來源可在圖例名稱旁分別調色。';
+const resetLineColors=document.createElement('button');resetLineColors.id='resetLineColors';resetLineColors.className='secondary';resetLineColors.type='button';resetLineColors.textContent='還原預設線色';
+resetLineColors.onclick=()=>{for(const key of keys){state.metrics[key].color=defaultMetricColors[key];for(const source of sourceIds)$('sourceColorValue-'+source+'-'+key).value=''}syncResultColors();flushFormatPreview()};lineBlock.appendChild(resetLineColors);
 function syncResultColors(){
  for(const source of sourceIds)for(const key of keys){
   const color=sourceLineColor(source,key);for(const input of sourceColorInputs.get(source+'|'+key)){input.value=color;input.setAttribute('aria-label',sourceName(source)+' '+label(key)+'線條顏色');input.title=sourceName(source)+' '+label(key)+'：'+color.toUpperCase()}
@@ -55,10 +47,14 @@ createChart=function(canvas,config){
  });return chart;
 };
 $('showAllSources').onclick=()=>{for(const source of sourceIds)$('sourceShown-'+source).checked=true;selectedVisible.clear();applyAllSourceVisibility();syncResultTools()};
-const downloads=$('resultDownloads');downloads.append($('downloadCurrentPng'),$('downloadPng'),$('downloadCsv'));
-$('downloadPng').textContent='合併此模式全部圖表 PNG';
+// Keep primary actions beside the chart; less frequent downloads stay in More.
+const downloads=document.createElement('details');downloads.id='resultDownloads';downloads.innerHTML='<summary>更多</summary><div class="result-more-actions"></div>';
+const moreActions=downloads.querySelector('div');chartActions.append($('downloadCurrentPng'),$('downloadCsv'),downloads);
+$('downloadCurrentPng').textContent='下載 PNG';$('downloadCsv').textContent='下載 CSV';$('downloadPng').textContent='合併此模式全部圖表 PNG';moreActions.appendChild($('downloadPng'));
 const exportOptionsButton=document.createElement('button');exportOptionsButton.id='imageOptions';exportOptionsButton.type='button';exportOptionsButton.className='secondary';exportOptionsButton.textContent='圖片尺寸／設定檔';
-exportOptionsButton.onclick=()=>{toggleStyle(true);selectSettingsTab(3)};downloads.appendChild(exportOptionsButton);
+exportOptionsButton.onclick=()=>{downloads.open=false;toggleStyle(true);selectSettingsTab(3)};moreActions.appendChild(exportOptionsButton);
+const changeDataButton=document.createElement('button');changeDataButton.id='resultChangeData';changeDataButton.type='button';changeDataButton.className='secondary';changeDataButton.textContent='更換資料／模式';changeDataButton.onclick=()=>{downloads.open=false;showWorkspaceStage(1,false)};moreActions.appendChild(changeDataButton);
+const periodDetails=document.createElement('details');periodDetails.id='resultPeriodDetails';periodDetails.innerHTML='<summary>分析期間</summary>';periodDetails.appendChild(context);resultsTools.after(periodDetails);
 const chartNavigation=document.createElement('div');chartNavigation.id='resultChartNavigation';
 const previousChart=document.createElement('button');previousChart.id='previousResultChart';previousChart.type='button';previousChart.className='secondary';previousChart.textContent='上一張';
 const nextChart=document.createElement('button');nextChart.id='nextResultChart';nextChart.type='button';nextChart.className='secondary';nextChart.textContent='下一張';chartNavigation.append(previousChart,chartPickerLabel,nextChart);resultsTools.before(chartNavigation);
@@ -67,28 +63,28 @@ previousChart.onclick=()=>moveResultChart(-1);nextChart.onclick=()=>moveResultCh
 // The same chart selector works in step 2 and directly above the results.
 for(const option of $('chartMode').options){if($('overviewView').querySelector('option[value="'+option.value+'"]'))continue;const copy=option.cloneNode(true);copy.dataset.resultMode='true';$('overviewView').appendChild(copy)}
 const resultsExtra=document.createElement('details');resultsExtra.id='resultModeOptions';resultsExtra.innerHTML='<summary>這張圖的其他選項</summary>';resultsTools.before(resultsExtra);
-const originalExtraParents=new Map([$('overlayMetric').closest('label'),overlaySourceField,rainStationField,rainControls].map(node=>[node,{parent:node.parentNode,next:node.nextSibling}]));
+for(const node of [$('overlayMetric').closest('label'),overlaySourceField,rainStationField,rainControls])resultsExtra.appendChild(node);
+$('chartMode').closest('label').hidden=true;advancedComparison.hidden=true;
+$('overviewView').closest('label').firstChild.textContent='圖表模式';
+function placeResultControls(anchor,nodes){if(nodes.some((node,index)=>(index?nodes[index-1]:anchor).nextElementSibling!==node))anchor.after(...nodes)}
 function syncResultTools(){
  const viewing=workspacePage==='plot'&&workspaceStage===3;
- resultsTools.hidden=!viewing;chartNavigation.hidden=!viewing||chartPicker.options.length<2||['continuous','co2hour'].includes(value('chartMode'));
- if(viewing){if(overviewControls.nextElementSibling!==chartNavigation||chartNavigation.nextElementSibling!==resultsExtra||resultsExtra.nextElementSibling!==resultsTools)overviewControls.after(chartNavigation,resultsExtra,resultsTools);$('overviewView').value=value('chartMode')}
- for(const option of $('overviewView').querySelectorAll('[data-result-mode]')){option.hidden=!viewing;option.disabled=$('chartMode').querySelector('option[value="'+option.value+'"]')?.disabled||isQuickMode()&&['difference','rainfall'].includes(option.value)}
- previousChart.disabled=Number(chartPicker.value)<=0;nextChart.disabled=Number(chartPicker.value)>=chartPicker.options.length-1;
- chartPickerLabel.hidden=chartNavigation.hidden;
- const mode=value('chartMode');resultsExtra.hidden=!viewing||!['overlay','rainfall'].includes(mode);
- for(const [node,original]of originalExtraParents){if(viewing)resultsExtra.appendChild(node);else if(node.parentNode===resultsExtra)original.parent.insertBefore(node,original.next?.parentNode===original.parent?original.next:null)}
+ resultsTools.hidden=periodDetails.hidden=!viewing;comparisonPanel.hidden=viewing||isQuickMode();
+ chartNavigation.hidden=!viewing||chartPicker.options.length<2||['continuous','co2hour'].includes(value('chartMode'));
+ placeResultControls(overviewControls,viewing?[chartNavigation,resultsExtra,resultsTools,periodDetails]:[comparisonPanel,resultsExtra]);
+ $('overviewView').value=value('chartMode');
+ for(const option of $('overviewView').querySelectorAll('[data-result-mode]')){option.hidden=false;option.disabled=$('chartMode').querySelector('option[value="'+option.value+'"]')?.disabled||isQuickMode()&&['difference','rainfall'].includes(option.value)}
+ previousChart.disabled=Number(chartPicker.value)<=0;nextChart.disabled=Number(chartPicker.value)>=chartPicker.options.length-1;chartPickerLabel.hidden=chartNavigation.hidden;
+ const mode=value('chartMode');resultsExtra.hidden=!['overlay','rainfall'].includes(mode);if(!viewing)resultsExtra.open=true;
  $('overlayMetric').closest('label').hidden=overlaySourceField.hidden=mode!=='overlay';rainControls.hidden=rainStationField.hidden=mode!=='rainfall';
- const chart=currentSettingsChart(),metrics=new Set(chart?.data.datasets.map(metricOf)||[]),sources=new Set(resultCharts().flatMap(c=>c.data.datasets.map(datasetSource)));
+ const chart=currentSettingsChart(),sources=new Set(resultCharts().flatMap(c=>c.data.datasets.map(datasetSource)));
  for(const source of sourceIds){
-  const row=$('resultSource-'+source);row.hidden=!sources.has(source);row.querySelector('.result-source-name').textContent=sourceName(source);$('sourceShown-'+source).setAttribute('aria-label','顯示'+sourceName(source));
-  row.classList.toggle('source-muted',!sourceIsShown(source));row.dataset.metrics=String(keys.filter(key=>chart?.data.datasets.some(ds=>datasetSource(ds)===source&&metricOf(ds)===key)).length);
-  for(const key of keys){const present=chart?.data.datasets.some(ds=>datasetSource(ds)===source&&metricOf(ds)===key);$('resultColor-'+source+'-'+key).closest('label').hidden=!present;
-   $('panelColor-'+source+'-'+key).closest('.source-legend-edit').hidden=$(legendPrefixes[source]+key).closest('label').hidden;
-  }
-  row.querySelector('.reset-source-color').hidden=!keys.some(key=>metrics.has(key));
+  const row=$('resultSource-'+source);row.hidden=!sources.has(source);row.querySelector('.result-source-name').textContent=sourceName(source);$('sourceShown-'+source).setAttribute('aria-label','顯示'+sourceName(source));row.classList.toggle('source-muted',!sourceIsShown(source));
+  for(const key of keys)$('panelColor-'+source+'-'+key).closest('.source-legend-edit').hidden=$(legendPrefixes[source]+key).closest('label').hidden;
  }
- const title=chart?.$title||'尚無圖表';$('resultDownloadContext').textContent='目前下載：'+title+'。合併下載包含此模式產生的 '+resultCharts().length+' 張圖。';
  $('downloadCurrentPng').disabled=$('downloadPng').disabled=!chart;
+ if(viewing)modeBar.hidden=true;
+ profileHelp.hidden=viewing||mode!=='co2hour';$('profileMethod').title=profileHelp.textContent;$('diurnalStart').title=profileHelp.textContent;
  syncResultColors();syncSwapActions();
 }
 const pickerBeforeResultTools=syncChartPicker;syncChartPicker=function(){pickerBeforeResultTools();syncResultTools()};
@@ -102,13 +98,13 @@ const restoreBeforeResultTools=restoreExperimentSettings;restoreExperimentSettin
 };
 
 /* Exchange the data objects and their identity settings, without reading files again. */
-const swapActions=document.createElement('div');swapActions.id='swapActions';swapActions.innerHTML='<button id="swapExperiments" type="button" class="secondary">交換實驗 A ⇄ B</button><span id="swapStatus" role="status">名稱、分析期間與配對氣象站一起交換。</span>';
+const swapActions=document.createElement('div');swapActions.id='swapActions';swapActions.innerHTML='<button id="swapExperiments" type="button" class="secondary">交換 A ⇄ B</button><span id="swapStatus" role="status" class="results-sr-only"></span>';
 sourcePanel.before(swapActions);
 let resultImportsPending=0;
 function syncSwapActions(){
  swapActions.hidden=isQuickMode()||workspacePage!=='plot'||Boolean(state.experimentDetail)||Boolean(state.querySubset);
  $('swapExperiments').disabled=!state.hive||!state.peer||resultImportsPending>0;
- const target=workspaceStage===1?sourcePanel:workspaceStage===2?rangePanel:context;if(target.previousElementSibling!==swapActions)target.before(swapActions);
+ if(workspaceStage===3){if(swapActions.parentNode!==chartActions)chartActions.insertBefore(swapActions,downloads)}else{const target=workspaceStage===1?sourcePanel:rangePanel;if(target.previousElementSibling!==swapActions)target.before(swapActions)}
 }
 const loadBeforeResultTools=load;load=async function(files,source){resultImportsPending++;syncSwapActions();try{return await loadBeforeResultTools(files,source)}finally{resultImportsPending--;syncResultTools()}};
 const swappedSources={hive:'peer',peer:'hive',weather:'weatherPeer',weatherPeer:'weather'};

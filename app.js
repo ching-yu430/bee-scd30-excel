@@ -1,4 +1,5 @@
-const state={hive:null,peer:null,weather:null,charts:[],co2Chart:null,raw:[],weatherEnabled:true,output:[],metrics:{temp:{color:'#e06b3c',title:'溫度 (°C)'},humidity:{color:'#2878b8',title:'相對濕度 (%)'},co2:{color:'#cf493d',title:'CO₂ (ppm)'}}};
+const defaultMetricColors={temp:'#d9433f',humidity:'#2878b8',co2:'#2ca02c'};
+const state={hive:null,peer:null,weather:null,charts:[],co2Chart:null,raw:[],weatherEnabled:true,output:[],metrics:{temp:{color:defaultMetricColors.temp,title:'溫度 (°C)'},humidity:{color:defaultMetricColors.humidity,title:'相對濕度 (%)'},co2:{color:defaultMetricColors.co2,title:'CO₂ (ppm)'}}};
 const sourceIds=['hive','peer','weather'];
 function sourceName(s){return {hive:'我的蜂箱',peer:'他人的蜂箱',weather:'外部氣象站'}[s]||s}
 function requestedSources(){const m=document.getElementById('comparisonMode')?.value||'weather';return ({mine:['hive'],peerOnly:['peer'],weather:['hive','weather'],hives:['hive','peer'],all:sourceIds})[m]||sourceIds}

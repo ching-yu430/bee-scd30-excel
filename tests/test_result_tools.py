@@ -37,9 +37,15 @@ class ResultToolsTests(unittest.TestCase):
         return self.page.evaluate('resultCharts().map(c=>c.data.datasets.map((ds,i)=>[ds.sourceId,c.isDatasetVisible(i)]))')
 
     def fill_color(self, selector, color):
+        opened = not self.page.locator('#stylePanel').is_visible()
+        if opened:
+            self.page.locator('#openStyle').click()
+        self.page.locator('#settingsTab-0').click()
         self.page.locator(selector).fill(color)
         self.page.locator(selector).dispatch_event('change')
         self.page.wait_for_function('formatPreviewTimer===null')
+        if opened:
+            self.page.locator('#closeStyle').click()
 
     def test_source_switches_follow_modes_and_export_without_filtering_data(self):
         original = self.page.evaluate('currentCsv()')
@@ -68,9 +74,9 @@ class ResultToolsTests(unittest.TestCase):
 
     def test_independent_source_colors_panel_json_and_png(self):
         before = self.page.evaluate('state.co2Chart.data.datasets.map(ds=>ds.borderColor)')
-        self.fill_color('#resultColor-hive-co2', '#135724')
-        self.fill_color('#resultColor-peer-co2', '#614abc')
-        self.fill_color('#resultColor-weather-co2', '#bc7234')
+        self.fill_color('#panelColor-hive-co2', '#135724')
+        self.fill_color('#panelColor-peer-co2', '#614abc')
+        self.fill_color('#panelColor-weather-co2', '#bc7234')
         expected = ['#135724', '#614abc', '#bc7234', before[3]]
         self.assertEqual(self.page.evaluate('state.co2Chart.data.datasets.map(ds=>ds.borderColor)'), expected)
         self.page.locator('#openStyle').click()
@@ -116,8 +122,8 @@ class ResultToolsTests(unittest.TestCase):
         self.assertEqual(self.page.evaluate('Object.keys(Chart.instances).length'), 1)
 
     def test_exchange_twice_preserves_data_ranges_identity_and_appearance(self):
-        self.fill_color('#resultColor-hive-co2', '#123456')
-        self.fill_color('#resultColor-peer-co2', '#abcdef')
+        self.fill_color('#panelColor-hive-co2', '#123456')
+        self.fill_color('#panelColor-peer-co2', '#abcdef')
         self.page.locator('#sourceShown-weather').uncheck()
         self.page.locator('[data-step="2"]').click()
         self.page.locator('#hivePeriodStart').fill('2026-07-01T03:00')
@@ -193,7 +199,7 @@ class ResultToolsTests(unittest.TestCase):
 
     def test_mobile_sources_navigation_downloads_and_no_overflow(self):
         self.page.set_viewport_size({'width': 390, 'height': 844})
-        self.fill_color('#resultColor-peer-co2', '#2468ac')
+        self.fill_color('#panelColor-peer-co2', '#2468ac')
         self.page.locator('#sourceShown-weatherPeer').uncheck()
         self.page.locator('#overviewView').select_option('daily')
         self.page.wait_for_function("state.renderMode==='daily'&&!state.dirty")
@@ -204,6 +210,48 @@ class ResultToolsTests(unittest.TestCase):
             self.page.locator('#downloadCurrentPng').click()
         self.assertTrue(Path(downloaded.value.path()).stat().st_size > 1000)
         self.assertTrue(self.page.evaluate('document.documentElement.scrollWidth<=innerWidth'))
-        self.page.locator('#imageOptions').click()
+        self.expose('#imageOptions').click()
         self.assertEqual(self.page.locator('#settingsTab-3').get_attribute('aria-selected'), 'true')
         self.assertTrue(self.page.locator('#exportWidth').is_visible())
+
+    def test_default_metric_colors_and_compact_source_controls(self):
+        expected = {'temp': '#d9433f', 'humidity': '#2878b8', 'co2': '#2ca02c'}
+        self.assertEqual(self.page.evaluate('Object.fromEntries(keys.map(k=>[k,state.metrics[k].color]))'), expected)
+        self.assertEqual(self.page.evaluate('state.co2Chart.data.datasets.map(ds=>ds.borderColor)'), [expected['co2']]*4)
+        self.assertEqual(self.page.locator('#resultsTools input[type=color]').count(), 0)
+        self.assertFalse(self.page.locator('#workspaceModeBar').is_visible())
+        self.assertFalse(self.page.locator('#experimentContext').is_visible())
+        self.page.locator('#resultPeriodDetails > summary').click()
+        self.assertTrue(self.page.locator('#experimentContext').is_visible())
+        self.assertIn('2026-07-01', self.page.locator('#experimentContext').inner_text())
+        self.page.locator('#resultPeriodDetails > summary').click()
+        self.page.locator('#openStyle').click()
+        self.page.locator('#panelColor-peer-co2').fill('#abcdef')
+        self.page.locator('#panelColor-peer-co2').dispatch_event('change')
+        self.expose('#resetLineColors').click()
+        self.page.wait_for_function("state.co2Chart.data.datasets.every(ds=>ds.borderColor==='#2ca02c')")
+        self.assertEqual(self.page.locator('#panelColor-peer-co2').input_value(), expected['co2'])
+        self.page.locator('#closeStyle').click()
+        self.page.locator('#overviewView').select_option('combined')
+        self.page.locator('#hiveOriginConfirmed').check()
+        self.page.locator('#peerOriginConfirmed').check()
+        self.page.locator('#sourceNext').click()
+        self.page.wait_for_function('workspaceStage===3&&!state.dirty')
+        self.assertTrue(self.page.evaluate('state.charts[0].data.datasets.every(ds=>ds.borderColor===defaultMetricColors[ds.metricKey])'))
+
+    def test_all_chart_modes_are_available_in_step_two(self):
+        self.page.locator('[data-step="2"]').click()
+        options = self.page.locator('#overviewView option').evaluate_all('nodes=>nodes.filter(n=>!n.hidden).map(n=>n.value)')
+        self.assertEqual(set(options), {'continuous', 'co2hour', 'combined', 'daily', 'overlay', 'difference', 'rainfall'})
+        self.page.wait_for_function("document.querySelector('#overviewView option[value=difference]').disabled")
+        for mode in ['combined','daily','overlay','rainfall','co2hour']:
+            with self.subTest(mode=mode):
+                self.page.locator('#overviewView').select_option(mode)
+                self.assertEqual(self.page.evaluate("value('chartMode')"), mode)
+                self.assertEqual(self.page.evaluate('workspaceStage'), 2)
+                if mode in ['overlay','rainfall']:
+                    self.assertTrue(self.page.locator('#resultModeOptions').is_visible())
+                    self.assertTrue(self.page.locator('#resultModeOptions').evaluate('el=>el.open'))
+        self.page.locator('#sourceNext').click()
+        self.page.wait_for_function('workspaceStage===3&&!state.dirty')
+        self.assertTrue(self.page.evaluate('Boolean(state.co2Chart)'))

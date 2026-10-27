@@ -173,6 +173,7 @@ class ExperimentComparisonTests(unittest.TestCase):
         self.assertEqual(self.page.evaluate("value('experimentPurpose')"), 'different')
         self.assertEqual(self.page.locator('#experimentContext b').count(), 0)
         self.assertEqual(self.page.locator('#timePreview b').count(), 0)
+        self.page.locator('#resultPeriodDetails').evaluate('el=>el.open=true')
         self.assertIn('A <b>實驗</b>', self.page.locator('#experimentContext').inner_text())
 
     def test_mobile_import_and_profile_do_not_overflow(self):

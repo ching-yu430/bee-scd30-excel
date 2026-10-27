@@ -106,7 +106,7 @@ function syncExperimentUI(){
  rangePanel.hidden=!different;
  periodPanel.hidden=different&&!state.experimentDetail;
  $('commonPeriod').hidden=different;
- $('overviewView').value=['continuous','co2hour'].includes(mode)?mode:'advanced';
+ $('overviewView').value=mode;
  $('overviewView').closest('label').hidden=Boolean(state.experimentDetail);
  document.querySelector('.chart-heading h2').textContent=state.experimentDetail?'異常當日細節':'整體比較';
  $('overviewMetric').closest('label').hidden=!['continuous','co2hour'].includes(mode);
@@ -120,7 +120,7 @@ function syncExperimentUI(){
  const difference=$('chartMode').querySelector('option[value="difference"]');difference.disabled=different;
  coverage.hidden=!profile;returnOverview.hidden=!state.experimentDetail;
  $('singleDay').hidden=true;document.querySelector('.range-shortcuts').hidden=different;
- if(workspacePage==='plot'&&workspaceStage===3)context.after(overviewControls);else rangePanel.after(overviewControls);
+ const controlsAnchor=workspacePage==='plot'&&workspaceStage===3?document.querySelector('.chart-heading'):rangePanel;if(controlsAnchor.nextElementSibling!==overviewControls)controlsAnchor.after(overviewControls);
  context.replaceChildren();
  for(const source of experimentSources.filter(source=>state[source]&&requestedSources().some(selected=>parentExperiment(selected)===source))){
   const card=document.createElement('div');card.className='experiment-context-card';const title=document.createElement('strong');title.textContent=sourceName(source);const period=document.createElement('span');const range=analysisRangeFor(source);period.textContent=range.start.replace('T',' ')+' ～ '+range.end.replace('T',' ');
@@ -175,7 +175,7 @@ function updateProfileOptions(){
 }
 $('profileMethod').onchange=updateProfileOptions;
 $('diurnalStart').onchange=updateProfileOptions;
-$('overviewView').onchange=()=>{if(value('overviewView')==='advanced')return;$('chartMode').value=value('overviewView');if(workspaceStage===3&&requestExperimentOrigins())return;$('chartMode').onchange?.();syncExperimentUI()};
+$('overviewView').onchange=()=>{if(value('overviewView')==='advanced')return;$('chartMode').value=value('overviewView');if(workspaceStage===3&&requestExperimentOrigins())return;if(workspaceStage===3)$('chartMode').onchange?.();else{markDirty();explain()}syncExperimentUI()};
 $('overviewMetric').onchange=()=>{if(value('chartMode')==='co2hour'&&state.output.length)draw();else syncChartPicker();syncExperimentUI()};
 $('rainStation').onchange=()=>{markDirty();applyFormat()};
 const oldComparisonChange=$('comparisonMode').onchange;

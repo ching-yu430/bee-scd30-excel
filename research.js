@@ -107,7 +107,7 @@ function markDirty(){state.dirty=true;syncFilters();$('analysisStatus').textCont
 function ensureCurrent(){if(!flushFormatPreview())return false;if(state.dirty){render();return !state.dirty&&Boolean(state.output.length)}return Boolean(state.output.length)}
 function applyFormat(){if(state.hive||state.peer||state.weather)render()}
 function resetFilterValues(){for(const k of keys){$(k+'Op').value='none';$(k+'Min').value='';$(k+'Max').value=''}$('filterSource').value='both';$('filterStage').value='raw';syncFilters()}
-function applyDefaultFormat(){for(const [id,v] of Object.entries(formatDefaults)){if(typeof v==='boolean')$(id).checked=v;else $(id).value=v}for(const k of keys){for(const part of ['axisMin-','axisMax-','axisStep-'])$(part+k).value='';$('innerName-'+k).value='內部'+label(k);$('outerName-'+k).value='外部'+label(k)}selectedVisible.clear()}
+function applyDefaultFormat(){for(const key of keys)state.metrics[key].color=defaultMetricColors[key];for(const [id,v] of Object.entries(formatDefaults)){if(typeof v==='boolean')$(id).checked=v;else $(id).value=v}for(const k of keys){for(const part of ['axisMin-','axisMax-','axisStep-'])$(part+k).value='';$('innerName-'+k).value='內部'+label(k);$('outerName-'+k).value='外部'+label(k)}selectedVisible.clear()}
 function csvCell(v){return '"'+String(v??'').replaceAll('"','""')+'"'}
 function currentCsv(){let rows;
  if(value('chartMode')==='co2hour'){const start=numberSetting('diurnalStart',0);rows=[['時段','CO₂平均值（ppm）','樣本數'],...Array.from({length:24},(_,i)=>{const h=(i+start)%24,b=state.hourBins[h];return [String(h).padStart(2,'0')+':00',b.n?b.sum/b.n:'',b.n]})];}

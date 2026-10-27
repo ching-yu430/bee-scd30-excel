@@ -140,4 +140,4 @@ const resetBeforeStudio=applyDefaultFormat;applyDefaultFormat=function(){resetBe
 syncStudio();syncPanelDownloads();
 // The legacy tab listener collapses sources after switching; step 1 should stay useful.
 tabs.addEventListener('click',()=>{if(workspacePage==='plot'&&workspaceStage===1)sourcePanel.open=true});
-document.documentElement.dataset.uiRelease='23.5';
+document.documentElement.dataset.uiRelease='23.6';
