@@ -208,7 +208,7 @@ input[type=color]{min-width:46px;width:46px;height:36px;padding:3px;border:1px s
 @media(prefers-reduced-motion:reduce){button,.file-button{transition:none}}
 
 /* v22: explicit spacing and identical, resilient palette controls. */
-:root{--bee-studio-version:23.4;--paper:#f3f5f4;--ink:#203b36;--muted:#63756e}
+:root{--bee-studio-version:23.5;--paper:#f3f5f4;--ink:#203b36;--muted:#63756e}
 .release-warning{padding:18px;margin:16px 0;border:2px solid #ae5943;border-radius:10px;background:#fff4ec;color:#783822;line-height:1.8}
 #stylePanel{background:#f4f6f4;padding:20px;scroll-padding-top:88px}
 #stylePanel .style-header{background:#f4f6f4;padding:12px 0 18px;margin-bottom:16px;top:-20px}
@@ -405,7 +405,7 @@ body[data-mode=quick] .experiment-card-heading input{font-size:14px}
 
 /* SOURCE: theme.css */
 /* Shared interface surfaces, spacing and action hierarchy across all workflows. */
-:root{--bee-theme-version:23.4;--ink:#203b36;--muted:#60736b;--paper:#f3f6f4;--card:#fff;--line:#d9e3dd;--green:#2b6252;--surface-soft:#edf4ef;--control-border:#b7cabf;--ui-radius:12px}
+:root{--bee-theme-version:23.5;--ink:#203b36;--muted:#60736b;--paper:#f3f6f4;--card:#fff;--line:#d9e3dd;--green:#2b6252;--surface-soft:#edf4ef;--control-border:#b7cabf;--ui-radius:12px}
 body{background:var(--paper);color:var(--ink);line-height:1.65}
 main,.topbar{max-width:1280px}
 .topbar{padding:16px 24px;gap:20px;border-bottom:1px solid var(--line)}
@@ -519,6 +519,46 @@ body[data-workspace-page=plot] #openStyle{background:#fff;color:var(--green);bor
  #workspaceModeBar{padding:10px 12px;align-items:center}#workspaceModeBar button{max-width:145px;font-size:12px}
  #settingsScroll .studio-block{padding:14px}#rangeSession{gap:10px;padding:10px 12px;top:10px}#rangeSessionStatus{font-size:12px}
 }
+
+
+/* SOURCE: results-tools.css */
+:root{--bee-result-tools:ready}
+/* Results controls share a compact, predictable layout on desktop and phone. */
+#resultsTools{margin:14px 0 20px;padding:16px;border:1px solid var(--line);border-radius:10px;background:#f8faf8}
+.results-tools-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.results-tools-heading h3{margin:0}
+#resultsTools>.help-text{margin:8px 0 12px;font-size:12px}
+.result-sources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.result-source{padding:12px;border:1px solid var(--line);border-radius:8px;background:#fff;min-width:0}
+.result-source-toggle{display:flex;align-items:center;gap:10px;font-weight:600;font-size:13px;cursor:pointer;margin:0}
+.result-source-toggle input{width:20px;height:20px;flex:0 0 20px;margin:0}.result-source-name{overflow-wrap:anywhere}
+.result-source.source-muted{background:#f0f2f0;color:var(--muted)}.source-muted .result-source-name{text-decoration:line-through}
+.result-source-colors{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.source-color-control{display:flex;align-items:center;gap:6px;margin:0;font-size:12px}
+.source-color-control input[type=color]{width:36px;height:32px;min-height:32px;min-width:36px;padding:2px;border:1px solid var(--control-border);border-radius:6px;cursor:pointer}
+.reset-source-color{min-height:32px;padding:5px 8px;font-size:11px}
+.result-downloads{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+#resultDownloadContext{width:100%;margin:0 0 4px;font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+#resultChartNavigation{display:flex;align-items:flex-end;gap:10px;margin:12px 0}#resultChartNavigation>.chart-picker{flex:1;margin:0;max-width:none}#resultChartNavigation select{width:100%}
+#resultChartNavigation>button{flex:0 0 auto}
+#resultModeOptions{padding:12px 16px;border:1px solid var(--line);border-radius:8px;margin:12px 0}
+#resultModeOptions>summary{cursor:pointer;font-weight:600;font-size:13px;color:var(--green)}#resultModeOptions>label{margin:12px 0}
+#swapActions{display:flex;align-items:center;gap:12px;margin:14px 0}#swapStatus{font-size:12px;color:var(--muted);overflow-wrap:anywhere}#swapExperiments{flex:0 0 auto}
+#settingsScroll .source-legend-edit{display:grid;grid-template-columns:minmax(0,1fr) 36px;align-items:center;gap:8px}
+#settingsScroll .source-legend-edit .settings-legend-row{grid-template-columns:28px minmax(0,1fr);gap:6px}
+#settingsScroll .source-legend-edit .settings-legend-row input{grid-column:1/-1}
+#settingsScroll .source-legend-edit label.source-color-control{padding:0;border:0;min-width:0;align-self:end;margin-bottom:6px}
+#settingsScroll .source-legend-edit .source-color-control .color-copy{display:none}
+#settingsScroll .source-legend-edit .source-color-control input[type=color]{width:36px;min-width:36px}
+@media(max-width:600px){
+ #resultsTools{padding:12px}.result-sources{grid-template-columns:minmax(0,1fr)}.result-source{padding:10px}
+ .result-source-colors{gap:10px}.results-tools-heading h3{font-size:15px}.results-tools-heading button{font-size:12px;padding:8px}
+ .result-downloads{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.result-downloads>p{grid-column:1/-1}.result-downloads button{padding:10px 6px;font-size:12px}
+ #resultChartNavigation{gap:6px}#resultChartNavigation button{padding:10px 8px;font-size:12px}
+ #swapActions{flex-direction:column;align-items:flex-start;gap:6px}
+}
+@media(min-width:1100px){body:not(.style-open) .result-sources{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+@media(max-width:600px){.result-source[data-metrics="1"]{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}.result-source[data-metrics="1"] .result-source-colors{margin:0}.result-source[data-metrics="1"] .result-source-colors>label{gap:4px}}
 </style>
 <!-- END BUNDLED SITE STYLES -->
     
@@ -603,36 +643,37 @@ body[data-workspace-page=plot] #openStyle{background:#fff;color:var(--green);bor
     <footer>蜂箱環境資料分析台 · 正在確認網站版本</footer>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="app.js?v=23.4"></script>
-    <script src="experiment-model.js?v=23.4"></script>
-    <script src="points.js?v=23.4"></script>
-    <script src="research.js?v=23.4"></script>
-    <script src="time-axis.js?v=23.4"></script>
-    <script src="workspace.js?v=23.4"></script>
-    <script src="layout.js?v=23.4"></script>
-    <script src="query.js?v=23.4"></script>
-    <script src="query-ui.js?v=23.4"></script>
-    <script src="ease.js?v=23.4"></script>
-    <script src="tick-controls.js?v=23.4"></script>
-    <script src="exceedance.js?v=23.4"></script>
-    <script src="query-actions.js?v=23.4"></script>
-    <script src="rainfall.js?v=23.4"></script>
-    <script src="anomalies.js?v=23.4"></script>
-    <script src="workflow.js?v=23.4"></script>
-    <script src="panel-polish.js?v=23.4"></script>
-    <script src="hive-import.js?v=23.4"></script>
-    <script src="comparison.js?v=23.4"></script>
-    <script src="studio.js?v=23.4"></script>
-    <script src="experiments.js?v=23.4"></script>
-    <script src="settings-tabs.js?v=23.4"></script>
-    <script src="quick-mode.js?v=23.4"></script>
-    <script src="ranges.js?v=23.4"></script>
-    <script src="asset-check.js?v=23.4"></script>
+    <script src="app.js?v=23.5"></script>
+    <script src="experiment-model.js?v=23.5"></script>
+    <script src="points.js?v=23.5"></script>
+    <script src="research.js?v=23.5"></script>
+    <script src="time-axis.js?v=23.5"></script>
+    <script src="workspace.js?v=23.5"></script>
+    <script src="layout.js?v=23.5"></script>
+    <script src="query.js?v=23.5"></script>
+    <script src="query-ui.js?v=23.5"></script>
+    <script src="ease.js?v=23.5"></script>
+    <script src="tick-controls.js?v=23.5"></script>
+    <script src="exceedance.js?v=23.5"></script>
+    <script src="query-actions.js?v=23.5"></script>
+    <script src="rainfall.js?v=23.5"></script>
+    <script src="anomalies.js?v=23.5"></script>
+    <script src="workflow.js?v=23.5"></script>
+    <script src="panel-polish.js?v=23.5"></script>
+    <script src="hive-import.js?v=23.5"></script>
+    <script src="comparison.js?v=23.5"></script>
+    <script src="studio.js?v=23.5"></script>
+    <script src="experiments.js?v=23.5"></script>
+    <script src="settings-tabs.js?v=23.5"></script>
+    <script src="quick-mode.js?v=23.5"></script>
+    <script src="ranges.js?v=23.5"></script>
+    <script src="results-tools.js?v=23.5"></script>
+    <script src="asset-check.js?v=23.5"></script>
     <script>
       // Independent guard: an old asset-check.js must not silently accept mixed releases.
-      if(document.documentElement.dataset.uiRelease!=='23.4' && !document.querySelector('[role="alert"]')){
+      if(document.documentElement.dataset.uiRelease!=='23.5' && !document.querySelector('[role="alert"]')){
         const warning=document.createElement('div');warning.setAttribute('role','alert');warning.className='release-warning';
-        warning.textContent='網站檔案版本不一致，部分功能可能無法使用。請完整更新 v23.4 檔案，再重新整理。';
+        warning.textContent='網站檔案版本不一致，部分功能可能無法使用。請完整更新 v23.5 檔案，再重新整理。';
         document.querySelector('main').prepend(warning);
       }
     </script>

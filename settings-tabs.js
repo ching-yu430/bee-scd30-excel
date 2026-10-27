@@ -60,7 +60,7 @@ function syncSettingsChartContext(){
   if(chart)field.hidden=!chart.data.datasets.some(dataset=>metricOf(dataset)===key&&(String(dataset.sourceId).split('|')[0]===source||value('chartMode')==='difference'&&source==='hive'));
   let stroke=field.querySelector('.settings-source-stroke');
   if(!stroke){stroke=document.createElementNS('http://www.w3.org/2000/svg','svg');stroke.classList.add('settings-source-stroke');stroke.setAttribute('viewBox','0 0 32 10');stroke.setAttribute('aria-hidden','true');const line=document.createElementNS(stroke.namespaceURI,'line');for(const [name,value]of Object.entries({x1:0,x2:32,y1:5,y2:5,'stroke-width':2.5}))line.setAttribute(name,value);stroke.appendChild(line);field.prepend(stroke)}
-  stroke.firstChild.setAttribute('stroke',state.metrics[key].color);stroke.firstChild.setAttribute('stroke-dasharray',sourceDash(source).join(' '));
+  stroke.firstChild.setAttribute('stroke',typeof sourceLineColor==='function'?sourceLineColor(source,key):state.metrics[key].color);stroke.firstChild.setAttribute('stroke-dasharray',sourceDash(source).join(' '));
  }
 }
 const studioBeforeSettingsTabs=syncStudio;syncStudio=function(){studioBeforeSettingsTabs();syncSettingsChartContext()};
